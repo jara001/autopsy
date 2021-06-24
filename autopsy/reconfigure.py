@@ -2,37 +2,48 @@
 # reconfigure.py
 """Extension for dynamic reconfigure.
 
-This module contains two classes: Parameter and ParameterHandler.
+This module contains multiple classes:
+  - Parameter,
+    - ConstrainedP,
+      - IntP,
+      - DoubleP,
+    - BoolP,
+    - StrP,
+  - ParameterReconfigure,
+    - ParameterServer.
 
-_Parameter_ is an object that represents a parameter in the application. It contains
-several attributes, see Parameter.__init__().
+However, from the user side, only the last one, ParameterServer, is used.
 
-_ParameterHandler_ is an object that you register your Parameter into (using register
-function). After all parameters are registered, call init_reconfigure() which creates
-all necessary stuff that is required in order to support dynamic reconfiguration (and
-rqt_reconfigure).
+_Parameter_ is an object that represents a parameter in the application, and it serves
+as a base for other types. Mandatory attributes are: name, default (value) and type.
+Its derivatives are documented separately.
+
+_ParameterReconfigure_ is an object that you register your parameters into. Calling
+reconfigure() creates all necessary stuff that is required in order to support dynamic
+reconfiguration (and rqt_reconfigure).
+
+_ParameterServer_ is a derivative of ParameterReconfigure that is used in the userspace
+only. In comparison to the previous ParameterHandler, it is using properties for accessing
+the parameters which reduces the number of changes that is required to perform on the code.
 
 
 Example:
 ```
-PARAMETERS = ParameterHandler()
+P = ParameterServer()
 
-PARAMETERS.register(
-    Parameter(
-        name = "testing_boolean",
-        default = "False",
-        description = "Just a testing boolean.",
-    )
-)
+P.number = 5 # Creates a parameter 'number' of 'int' type with value '5'.
+P.number.description = "Just a number." # Adds a docstring to the parameter.
+
+P.floating = {'default': 5.2, 'min': 2, 'max': 6, 'description': 'float'}
+# Creates a parameter 'floating' that is a float within 2 <= floating <= 6.
 
 if rospy.has_param("~"):
-    for param, value in rospy.get_param("~").items():
-        PARAMETERS.set(param, value)
+    P.update(rospy.get_param("~"))
 
 print ("Current values of the parameters:")
-print (str(PARAMETERS))
+print (P)
 
-PARAMETERS.init_reconfigure()
+P.reconfigure()
 ```
 """
 ######################
@@ -59,35 +70,111 @@ formatNumber = lambda x: ("%f" % x).rstrip("0").rstrip(".")
 class Parameter(object):
     """Object that represents a parameter."""
 
-    def __init__(self, name, default, type = None, level = 0, description = "", min = None, max = None, value = None, **overflown):
+    def __init__(self, name, default, type, level = 0, description = "", value = None, *args, **kwargs):
         """Initialize a parameter object.
 
         Arguments:
         name -- name of the parameter, str
         default -- default value of the parameter, bool/int/str/float
-        type -- type of the parameter, optional, type
+        type -- type of the parameter, type
         level -- identification number for this parameter, int
         description -- short comment for this parameter, str
-        min -- minimum value of the parameter, optional, (same as default)
-        max -- maximum value of the parameter, optional, (same as default)
         value -- current value of the parameter, optional, (same as default)
+        *overflown args
         **overflown kwargs
-
-        Note: min, max are not applicable for str and bool types.
         """
+
+        # Sanity check
+        if not isinstance(default, type) or ( value is not None and not isinstance(value, type) ):
+            raise TypeError("Type '%s' does not match given values '%s / %s'." % (type.__name__, default, value))
+
+        # TODO: Do properties dynamically using property().
+        # But beware of https://stackoverflow.com/questions/1325673/how-to-add-property-to-a-class-dynamically
 
         # Mandatory arguments
         self.name = name
         self.default = default
+        self.type = type
 
         # Optional arguments
-        self.type = type if type is not None else default.__class__
+        #self.type = type if type is not None else default.__class__
         self.typestr = self.type.__name__ if self.type != float else "double"
         self.level = level
         self.description = description
-        self.min = min
-        self.max = max
         self.value = value if value is not None else default
+
+
+    @property
+    def name(self):
+        """Name of the parameter."""
+        return self.__name
+
+    @name.setter
+    def name(self, new_value):
+        self.__name = new_value
+
+
+    @property
+    def default(self):
+        """Default value of the parameter."""
+        return self.__default
+
+    @default.setter
+    def default(self, new_value):
+        self.__default = new_value
+
+
+    @property
+    def type(self):
+        """Type of the parameter."""
+        return self.__type
+
+    @type.setter
+    def type(self, new_value):
+        self.__type = new_value
+
+
+    @property
+    def typestr(self):
+        """Type of the parameter as string (not same since float != double)."""
+        return self.__typestr
+
+    @typestr.setter
+    def typestr(self, new_value):
+        self.__typestr = new_value
+
+
+    @property
+    def level(self):
+        """Level the parameter belongs to."""
+        return self.__level
+
+    @level.setter
+    def level(self, new_value):
+        self.__level = new_value
+
+
+    @property
+    def description(self):
+        """Description of the parameter shown in GUI."""
+        return self.__description
+
+    @description.setter
+    def description(self, new_value):
+        self.__description = new_value
+
+
+    @property
+    def value(self):
+        """Current value of the parameter."""
+        return self.__value
+
+    @value.setter
+    def value(self, new_value):
+        if not isinstance(new_value, self.type):
+            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+
+        self.__value = new_value
 
 
     def __str__(self):
@@ -96,41 +183,121 @@ class Parameter(object):
         Returns:
         str
         """
-
-        if isinstance(self.type, str):
-            _value = self.value
-        elif isinstance(self.type, bool):
-            _value = str(self.value)
-        else:
-            _value = "%s" % formatNumber(self.value)
-
         return "%s: %s" % (self.name, self.value)
 
 
-    def valid(self):
-        """Checks whether this parameter is valid.
+class ConstrainedP(Parameter):
+    """Parameter that is constrained by min and max values."""
 
-        Returns:
-        valid -- True when valid, otherwise False, bool
+    def __init__(self, name, default, type, min = -2147483647, max = 2147483647, **kwargs):
+        """Initialize a constrained parameter object.
+
+        Arguments:
+        name -- name of the parameter, str
+        default -- default value of the parameter, bool/int/str/float
+        type -- type of the parameter, type
+        min -- minimum value of the parameter (included), optional, (same as default)
+        max -- maximum value of the parameter (included), optional, (same as default)
+        **overflown kwargs
         """
 
-        # Is the type bool/int/str/float?
-        if self.type not in [bool, int, str, float]:
-            return False
+        if min > max:
+            raise ValueError("Lower bound is larger than upper bound.")
 
-        # Is value of a correct type?
-        if not isinstance(self.value, self.type):
-            return False
+        self.type = type
 
-        return True
+        self.min = type(min)
+        self.max = type(max)
+
+        super(ConstrainedP, self).__init__(name, default, type, **kwargs)
+
+
+    @property
+    def min(self):
+        """Minimum value of the parameter (included)."""
+        return self.__min
+
+    @min.setter
+    def min(self, new_value):
+        if not isinstance(new_value, self.type):
+            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+
+        self.__min = new_value
+
+
+    @property
+    def max(self):
+        """Maximum value of the parameter (included)."""
+        return self.__max
+
+    @max.setter
+    def max(self, new_value):
+        if not isinstance(new_value, self.type):
+            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+
+        self.__max = new_value
+
+
+    @Parameter.value.setter
+    def value(self, new_value):
+        if not isinstance(new_value, self.type):
+            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+
+        if not self.min <= new_value <= self.max:
+            raise ValueError("Value '%s' is not in %s <= value <= %s range." % (formatNumber(new_value), formatNumber(self.min), formatNumber(self.max)))
+
+        Parameter.value.fset(self, new_value)
+
+
+    def __str__(self):
+        """Formats the parameter into a string.
+
+        Returns:
+        str
+        """
+        return "%s: %s" % (self.name, formatNumber(self.value))
+
+
+class IntP(ConstrainedP):
+    """Parameter of a type integer."""
+
+    def __init__(self, name, default, *args, **kwargs):
+        super(IntP, self).__init__(name, default, int, *args, **kwargs)
+
+
+class DoubleP(ConstrainedP):
+    """Parameter of a type float/double."""
+
+    def __init__(self, name, default, *args, **kwargs):
+        super(DoubleP, self).__init__(name, default, float, *args, **kwargs)
+
+
+class BoolP(Parameter):
+    """Parameter of a type bool."""
+
+    def __init__(self, name, default, *args, **kwargs):
+        self.min = None
+        self.max = None
+
+        super(BoolP, self).__init__(name, default, bool, *args, **kwargs)
+
+
+class StrP(Parameter):
+    """Parameter of a type string."""
+
+    def __init__(self, name, default, *args, **kwargs):
+        self.min = None
+        self.max = None
+
+        super(StrP, self).__init__(name, default, str, *args, **kwargs)
 
 
 ######################
-# ParameterHandler
+# ParameterReconfigure
 ######################
 
-class ParameterHandler(object):
-    """Object that stores parameters, updates their values, and provides an interface for dynamic reconfiguration."""
+class ParameterReconfigure(object):
+    """Object that provides an interface for dynamic reconfiguration."""
 
     # Internal storage of parameters
     _parameters = {}
@@ -140,31 +307,26 @@ class ParameterHandler(object):
     _pub_update = None
     _service = None
 
-
     def __init__(self):
-        """Initialize a Parameter handler."""
-
-        for field in ["location", "bool", "int", "str", "double"]:
-            self._parameters[field] = {}
+        pass
 
 
-    def init_reconfigure(self):
-        """Initializes the topics and services for dynamic reconfiguration."""
+    def reconfigure(self):
 
         self._pub_description = rospy.Publisher("%s/parameter_descriptions" % rospy.get_name(),
                                                 ConfigDescription, queue_size = 1, latch = True)
         self._pub_update = rospy.Publisher("%s/parameter_updates" % rospy.get_name(),
                                                 Config, queue_size = 1, latch = True)
-        self._service = rospy.Service("%s/set_parameters" % rospy.get_name(), Reconfigure, self.reconfigure)
+        self._service = rospy.Service("%s/set_parameters" % rospy.get_name(), Reconfigure, self._reconfigureCallback)
 
         self._redescribe()
-        self.describe()
+        self._describePub()
 
         self._reupdate()
-        self.update()
+        self._updatePub()
 
 
-    def describe(self):
+    def _describePub(self):
         """Sends a message with parameters' description."""
 
         if self._pub_description is None:
@@ -173,26 +335,13 @@ class ParameterHandler(object):
         self._pub_description.publish(self._description)
 
 
-    def update(self):
+    def _updatePub(self):
         """Sends a message with parameters' update."""
 
         if self._pub_update is None:
             return
 
         self._pub_update.publish(self._update)
-
-
-    def get(self, name, default = None):
-        """Returns a value of parameter, or default if not found.
-
-        Arguments:
-        name -- name of the parameter, str
-        default -- value to be returned when parameter not found, optional, Any
-
-        Returns:
-        value / default
-        """
-        return self._parameters[self._parameters[name]][name].value if name in self._parameters else default
 
 
     def _get(self, ptype, field, condition):
@@ -206,23 +355,23 @@ class ParameterHandler(object):
         Returns:
         plist -- list of parameters, 2-list(str,Any) list
         """
-        return [ [param.name, field(param)] for param in self._parameters[ptype].values() if condition(param) ]
+        return [ [param.name, field(param)] for param in self._parameters.values() if condition(param) ]
 
 
     def _get_bools(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("bool", field, condition)
+        return self._get("bool", field, lambda x: condition(x) and x.type == bool)
 
 
     def _get_ints(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("int", field, condition)
+        return self._get("int", field, lambda x: condition(x) and x.type == int)
 
 
     def _get_strs(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("str", field, condition)
+        return self._get("str", field, lambda x: condition(x) and x.type == str)
 
 
     def _get_doubles(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("double", field, condition)
+        return self._get("double", field, lambda x: condition(x) and x.type == float)
 
 
     def _get_config(self, field = lambda x: x.value, condition = lambda _: True):
@@ -252,11 +401,11 @@ class ParameterHandler(object):
                     type = "",
                     parameters = [
                         ParamDescription(
-                            name = self._parameters[ptype][pname].name,
-                            type = self._parameters[ptype][pname].typestr,
-                            level = self._parameters[ptype][pname].level,
-                            description = self._parameters[ptype][pname].description,
-                        ) for pname, ptype in self._parameters["location"].items()
+                            name = _param.name,
+                            type = _param.typestr,
+                            level = _param.level,
+                            description = _param.description,
+                        ) for _name, _param in self._parameters.items()
                     ],
                 ),
             ],
@@ -282,7 +431,7 @@ class ParameterHandler(object):
         self._update = _config
 
 
-    def reconfigure(self, data):
+    def _reconfigureCallback(self, data):
         """Service callback for dynamic reconfiguration.
 
         Arguments:
@@ -296,61 +445,18 @@ class ParameterHandler(object):
 
         # Update parameters
         for param in data.config.bools + data.config.ints + data.config.strs + data.config.doubles:
-            self.set(param.name, param.value)
+            self._parameters[param.name].value = param.value
             _updated.append(param.name)
 
 
         if len(_updated) > 0:
             self._reupdate()
-            self.update()
+            self._updatePub()
+
 
         return ReconfigureResponse(
             self._get_config(condition = lambda x: x in _updated)
         )
-
-
-    def register(self, parameter):
-        """Registers a parameter in the handler.
-
-        Arguments:
-        parameter -- Parameter class
-
-        Returns:
-        success -- True when the parameter was registered successfully, otherwise False, bool
-        """
-
-        # Check that we do not know this parameter
-        if parameter.name in self._parameters:
-            return False
-
-        # Check that the parameter is valid
-        if not parameter.valid():
-            return False
-
-        # Add it into proper dict
-        self._parameters[parameter.typestr][parameter.name] = parameter
-        self._parameters["location"][parameter.name] = parameter.typestr
-
-
-        return True
-
-
-    def set(self, name, value):
-        """Sets a value of the parameter.
-
-        Arguments:
-        name -- name of the parameter, str
-        value -- value of the parameter, bool/int/str/float
-
-        Returns:
-        success -- True when parameter was found and set successfully, otherwise False, bool
-        """
-
-        if name in self._parameters["location"]:
-            self._parameters[self._parameters["location"][name]][name].value = value
-            return True
-
-        return False
 
 
     def __str__(self):
@@ -362,7 +468,96 @@ class ParameterHandler(object):
 
         return "\n".join(
             [
-                "\t%s" % str(self._parameters[ptype][pname]) for pname, ptype in self._parameters["location"].items()
+                "\t%s" % str(param) for param in self._parameters.values()
             ]
         )
 
+
+######################
+# ParameterServer
+######################
+
+class ParameterServer(ParameterReconfigure):
+    """Object that stores parameters, updates their values, and provides an interface for dynamic reconfiguration."""
+
+
+    def __init__(self):
+        pass
+
+
+    def __hasattr__(self, name):
+        pass
+
+
+    def __getattr__(self, name):
+        super(ParameterServer, self).__setattr__(name, None)
+        return name
+
+
+    def __getattribute__(self, name):
+        """Function overload to obtain parameters as properties."""
+
+        #if name == "_parameters":
+        if name[0] == "_":
+            return super(ParameterServer, self).__getattribute__(name)
+
+        if name in self._parameters:
+            return self._parameters[name]
+
+        return super(ParameterServer, self).__getattribute__(name)
+
+
+    def __setattr__(self, name, value):
+        """Function overload to set parameters as properties."""
+
+        if name[0] == "_":
+            super(ParameterServer, self).__setattr__(name, value)
+
+        elif name in self._parameters:
+            if isinstance(value, dict):
+                for _prop, _val in value.items():
+                    self._parameters[name]._prop = _val
+            else:
+                self._parameters[name].value = value
+
+        else:
+            if isinstance(value, dict) and "default" in value :
+                kwargs = value
+                value = value.get("default")
+                del kwargs["default"]
+            elif isinstance(value, list):
+                # Dynamic Reconfigure support (instead of .add() pass a list)
+                _type = value[1]
+                kwargs = dict(
+                    zip(
+                        ["level", "description", "default", "min", "max"],
+                        value[2:] # Omit name and type
+                    )
+                )
+                value = _type(kwargs.get("default"))
+                del kwargs["default"]
+            else:
+                kwargs = dict()
+
+
+            if isinstance(value, int):
+                self._parameters[name] = IntP(name, value, **kwargs)
+            elif isinstance(value, float):
+                self._parameters[name] = DoubleP(name, value, **kwargs)
+            elif isinstance(value, bool):
+                self._parameters[name] = BoolP(name, value, **kwargs)
+            elif isinstance(value, str):
+                self._parameters[name] = StrP(name, value, **kwargs)
+            else:
+                raise TypeError("Unable to create a parameter of type '%s'." % type(value))
+
+
+    def update(self, parameters):
+        """Updates the parameters according to the passed dictionary.
+
+        Arguments:
+        parameters -- new values of the parameters, dict(str, any)
+        """
+
+        for param, value in parameters.items():
+            self.__setattr__(param, value)
