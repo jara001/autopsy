@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
 
+## 0.3.0 - 2021-06-29
+### Added
+- Support for enumerated values in `reconfigure`.
+
 ## 0.2.0 - 2021-06-28
 ### Changed
 - Completely rewritten `reconfigure` utility. Now it is much simpler to use, but it is not directly backwards compatible.
