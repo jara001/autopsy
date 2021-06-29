@@ -10,9 +10,10 @@ This module contains multiple classes:
     - BoolP,
     - StrP,
   - ParameterReconfigure,
-    - ParameterServer.
+    - ParameterServer,
+  - ParameterEnum.
 
-However, from the user side, only the last one, ParameterServer, is used.
+However, from the user side, only the last two, ParameterServer and ParameterEnum are used.
 
 _Parameter_ is an object that represents a parameter in the application, and it serves
 as a base for other types. Mandatory attributes are: name, default (value) and type.
@@ -25,6 +26,10 @@ reconfiguration (and rqt_reconfigure).
 _ParameterServer_ is a derivative of ParameterReconfigure that is used in the userspace
 only. In comparison to the previous ParameterHandler, it is using properties for accessing
 the parameters which reduces the number of changes that is required to perform on the code.
+
+_ParameterEnum_ is an extension of standard Enum class. Instead of taking just one value,
+ParameterEnum supports also second value containing the description of each parameter.
+However, Enum can be still used.
 
 
 Example:
@@ -45,6 +50,28 @@ print (P)
 
 P.reconfigure()
 ```
+
+Enumeration example:
+```
+P = ParameterServer()
+
+class standardEnum(Enum):
+    Value1 = 5
+    Value2 = 10
+
+class extendedEnum(ParameterEnum):
+    Value1 = 9.5, "First value"
+    Value2 = 9.68, "Second value"
+
+inlineEnum = ParameterEnum("NOT_USED", {"Value1": (8, "with help"), "Value2": 9})
+
+P.enumeratedParam = standardEnum
+P.enumeratedParam2 = extendedEnum
+P.enumeratedParam3 = inlineEnum
+
+# Value assignment
+P.enumeratedParam = standardEnum.Value1
+```
 """
 ######################
 # Imports & Globals
@@ -52,6 +79,10 @@ P.reconfigure()
 
 # ROS Python client library
 import rospy
+
+
+# Enumerated parameters support
+from enum import Enum, EnumMeta
 
 
 # Message types
@@ -64,13 +95,31 @@ formatNumber = lambda x: ("%f" % x).rstrip("0").rstrip(".")
 
 
 ######################
+# ParameterEnum
+######################
+
+class ParameterEnum(Enum):
+    """Object that contains both Enum and its description.
+
+    Source:
+    https://stackoverflow.com/questions/50473951/how-can-i-attach-documentation-to-members-of-a-python-enum
+    """
+
+    def __new__(cls, value, doc = ""):
+        self = object.__new__(cls)
+        self._value_ = value
+        self.__doc__ = doc
+        return self
+
+
+######################
 # Parameter
 ######################
 
 class Parameter(object):
     """Object that represents a parameter."""
 
-    def __init__(self, name, default, type, level = 0, description = "", value = None, *args, **kwargs):
+    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, *args, **kwargs):
         """Initialize a parameter object.
 
         Arguments:
@@ -80,6 +129,7 @@ class Parameter(object):
         level -- identification number for this parameter, int
         description -- short comment for this parameter, str
         value -- current value of the parameter, optional, (same as default)
+        enum -- enumerate object for interpreting the values, optional
         *overflown args
         **overflown kwargs
         """
@@ -102,6 +152,9 @@ class Parameter(object):
         self.level = level
         self.description = description
         self.value = value if value is not None else default
+
+        # Enumeration
+        self.__enum = enum
 
 
     @property
@@ -171,10 +224,45 @@ class Parameter(object):
 
     @value.setter
     def value(self, new_value):
+        if hasattr(self, "enum") and self.enum is not None:
+            if isinstance(new_value, Enum):
+                new_value = new_value.value
+
+            if new_value not in [ v.value for v in self.enum.__members__.values() ]:
+                raise ValueError("Value '%s' is not a valid enumerated element." % (new_value))
+
         if not isinstance(new_value, self.type):
             raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
 
         self.__value = new_value
+
+
+    @property
+    def enum(self):
+        """Current enum object of the parameter."""
+        return self.__enum
+
+
+    @property
+    def repr_enum(self):
+        """Current enum in the dynamic reconfigure friendly format."""
+
+        if self.enum is None:
+            return ""
+
+        _d = {"enum": [], "enum_description": self.description if self.enum.__doc__ is None else self.enum.__doc__}
+
+        for _e in list(self.enum):
+            _d["enum"].append(
+                {
+                    "name": _e.name,
+                    "type": self.typestr,
+                    "description": "" if _e.__doc__ is None else _e.__doc__,
+                    "value": _e.value,
+                }
+            )
+
+        return repr(_d)
 
 
     def __str__(self):
@@ -240,6 +328,13 @@ class ConstrainedP(Parameter):
 
     @Parameter.value.setter
     def value(self, new_value):
+        if hasattr(self, "enum") and self.enum is not None:
+            if isinstance(new_value, Enum):
+                new_value = new_value.value
+
+            if new_value not in [ v.value for v in self.enum.__members__.values() ]:
+                raise ValueError("Value '%s' is not a valid enumerated element." % (new_value))
+
         if not isinstance(new_value, self.type):
             raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
 
@@ -405,6 +500,7 @@ class ParameterReconfigure(object):
                             type = _param.typestr,
                             level = _param.level,
                             description = _param.description,
+                            edit_method = "" if _param.enum is None else _param.repr_enum
                         ) for _name, _param in self._parameters.items()
                     ],
                 ),
@@ -536,9 +632,12 @@ class ParameterServer(ParameterReconfigure):
                 )
                 value = _type(kwargs.get("default"))
                 del kwargs["default"]
+            elif isinstance(value, EnumMeta):
+                # Enum support
+                kwargs = {"enum": value}
+                value = list(value)[0].value
             else:
                 kwargs = dict()
-
 
             if isinstance(value, int):
                 self._parameters[name] = IntP(name, value, **kwargs)
