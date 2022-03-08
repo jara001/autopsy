@@ -27,8 +27,12 @@ sed -z "s/## Unreleased/## Unreleased\n## $1 - `date +%Y-%m-%d`/" -i CHANGELOG.m
 #sed -i "s/^date-released: .*/date-released: `date +%Y-%m-%d`/g" CITATION.cff
 
 
+# 3c) Update package.xml
+sed -i "s/<version>.*<\/version>/<version>$1<\/version>/g" package.xml
+
+
 # 4) Add changes
-git add CHANGELOG.md #README.md CITATION.cff
+git add CHANGELOG.md package.xml #README.md CITATION.cff
 
 
 # 5) Commit changes
