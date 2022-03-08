@@ -39,6 +39,11 @@ with open("VERSION", "w") as file:
     file.write(VERSION)
 
 
+# Also store the version to be seen from the code
+with open("./autopsy/version.py", "w") as file:
+    file.write("__version__ = '%s'" % VERSION)
+
+
 setup(
     name = "autopsy",
     version = VERSION,
