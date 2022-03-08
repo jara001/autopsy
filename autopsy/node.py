@@ -9,6 +9,26 @@ tions onto this class.
 
 This module contains class Node.
 
+Relations:
+-------------------------------------------------------------------------------------
+|           ROS 1           |          uninode          |           ROS 2           |
+|-----------------------------------------------------------------------------------|
+| rospy.init_node           |                     self.__init__                     |
+| rospy.Publisher           | self.Publisher+           | self.create_publisher     |
+| rospy.Subscriber          | self.Subscriber+          | self.create_subscription  |
+| rospy.Rate                | self.Rate+                | self.create_rate          |
+| rospy.Timer               | self.Timer+               | self.create_timer         |
+-------------------------------------------------------------------------------------
+
+Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
+
+Differences:
+- ROS2
+    - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
+      in ROS1). Therefore, the function has to be created as:
+      `def callback(self, *args, **kwargs)`
+
+
 Example:
 ```
 from autopsy.node import Node
