@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- `uninode` utility to create a compatibility layer for ROS1-ROS2 nodes.
+- `release.sh` to automatically create new release (from `ng_trajectory`).
+- `Makefile` for fast working with the package (from `ng_trajectory`).
+- Optional dependency on `rclpy`.
+- `package.xml`, `CMakeLists.txt`, `resource/` and `setup.cfg` to be able to build the package inside the ROS workspace.
+- License file.
+
+### Changed
+- `rospy` dependency is optional.
 
 ## 0.3.0 - 2021-06-29
 ### Added
