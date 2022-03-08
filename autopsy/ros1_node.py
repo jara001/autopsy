@@ -91,4 +91,4 @@ class Node(object):
         Note:
         Callback in ROS1 takes an argument 'rospy.TimerEvent', however not in ROS2.
         """
-        return rospy.Timer(period = rospy.Duration(timer_period_sec), callback = lambda x: callback)
+        return rospy.Timer(period = rospy.Duration(timer_period_sec), callback = callback)
