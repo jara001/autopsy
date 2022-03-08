@@ -61,5 +61,8 @@ setup(
         "Programming Language :: Python",
         "Topic :: Scientific/Engineering",
     ],
-    install_requires=["rospy"]
+    extras_require={
+        "ros1": "rospy",
+        "ros2": "rclpy",
+    },
 )
