@@ -3,4 +3,7 @@
 """Initialize script for 'autopsy' package."""
 
 # Version of the package
-from .version import __version__
+try:
+    from .version import __version__
+except:
+    pass
