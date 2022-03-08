@@ -63,6 +63,13 @@ setup(
     #url = "http://packages.python.org/an_example_pypi_project",
     packages=find_packages(),
     #long_description=read('README'),
+    data_files=[
+        ("share/ament_index/resource_index/packages",
+             ["resource/autopsy"]),
+        ("share/autopsy", ["package.xml"]),
+    ],
+    install_requires=["setuptools"],
+    zip_safe=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
