@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.4.0 - 2022-03-08
 ### Added
 - `uninode` utility to create a compatibility layer for ROS1-ROS2 nodes.
 - `release.sh` to automatically create new release (from `ng_trajectory`).
