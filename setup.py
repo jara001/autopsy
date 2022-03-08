@@ -69,7 +69,6 @@ setup(
         ("share/autopsy", ["package.xml"]),
     ],
     install_requires=["setuptools"],
-    zip_safe=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
