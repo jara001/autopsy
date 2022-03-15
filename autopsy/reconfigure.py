@@ -449,7 +449,10 @@ class ParameterReconfigure(object):
         pass
 
 
-    def reconfigure(self, namespace = rospy.get_name()):
+    def reconfigure(self, namespace = None):
+
+        if namespace is None:
+            namespace = rospy.get_name()
 
         self._pub_description = rospy.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
