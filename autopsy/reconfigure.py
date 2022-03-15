@@ -438,24 +438,39 @@ class ParameterReconfigure(object):
     """Object that provides an interface for dynamic reconfiguration."""
 
     # Internal storage of parameters
-    _parameters = {}
-    _description = ConfigDescription()
-    _update = Config()
+    _parameters = None
+    _description = None
+    _update = None
     _pub_description = None
     _pub_update = None
     _service = None
 
     def __init__(self):
+        """Initialize variables of the object.
+
+        This is a Python feature, as setting them before makes the variables
+        shared between all instances.
+
+        References:
+        https://stackoverflow.com/questions/13389325/why-do-two-class-instances-appear-to-be-sharing-the-same-data
+        https://stackoverflow.com/questions/1132941/least-astonishment-and-the-mutable-default-argument
+        """
+        self._parameters = {}
+        self._description = ConfigDescription()
+        self._update = Config()
         pass
 
 
-    def reconfigure(self):
+    def reconfigure(self, namespace = None):
 
-        self._pub_description = rospy.Publisher("%s/parameter_descriptions" % rospy.get_name(),
+        if namespace is None:
+            namespace = rospy.get_name()
+
+        self._pub_description = rospy.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
-        self._pub_update = rospy.Publisher("%s/parameter_updates" % rospy.get_name(),
+        self._pub_update = rospy.Publisher("%s/parameter_updates" % namespace,
                                                 Config, queue_size = 1, latch = True)
-        self._service = rospy.Service("%s/set_parameters" % rospy.get_name(), Reconfigure, self._reconfigureCallback)
+        self._service = rospy.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
 
         self._redescribe()
         self._describePub()
@@ -625,7 +640,8 @@ class ParameterServer(ParameterReconfigure):
 
 
     def __init__(self):
-        pass
+        """Initialize the object by calling the super init."""
+        super(ParameterServer, self).__init__()
 
 
     def __hasattr__(self, name):
