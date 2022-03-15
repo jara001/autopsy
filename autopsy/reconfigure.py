@@ -72,6 +72,31 @@ P.enumeratedParam3 = inlineEnum
 # Value assignment
 P.enumeratedParam = standardEnum.Value1
 ```
+
+Callback example:
+```
+P = ParameterServer()
+P.number = 5
+
+def limit_value(new_value):
+    "Limits the value to be lower then 10."
+
+    if new_value <= 10:
+        value = new_value
+    else:
+        value = P.number.value
+
+    return value
+
+P.number.callback = limit_value
+
+P.reconfigure()
+
+# limit_value is run on every change of 'P.number'.
+```
+Note: Callback function receives new value of the parameter,
+and is required to return the true new value. It is then filled
+inside the parameter and announced to the reconfigure GUI.
 """
 ######################
 # Imports & Globals
@@ -119,7 +144,7 @@ class ParameterEnum(Enum):
 class Parameter(object):
     """Object that represents a parameter."""
 
-    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, *args, **kwargs):
+    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, callback = None, *args, **kwargs):
         """Initialize a parameter object.
 
         Arguments:
@@ -130,6 +155,7 @@ class Parameter(object):
         description -- short comment for this parameter, str
         value -- current value of the parameter, optional, (same as default)
         enum -- enumerate object for interpreting the values, optional
+        callback -- function to be called upon receiving dynamic reconfiguration, optional, Callable
         *overflown args
         **overflown kwargs
         """
@@ -155,6 +181,9 @@ class Parameter(object):
 
         # Enumeration
         self.__enum = enum
+
+        # Callbacks
+        self.callback = callback
 
 
     @property
@@ -263,6 +292,20 @@ class Parameter(object):
             )
 
         return repr(_d)
+
+
+    @property
+    def callback(self):
+        """Return the callback function."""
+        return self.__callback
+
+
+    @callback.setter
+    def callback(self, new_value):
+        if not callable(new_value) and new_value is not None:
+            raise ValueError("Value '%s' is not a callable." % (new_value))
+
+        self.__callback = new_value
 
 
     def __str__(self):
@@ -541,7 +584,11 @@ class ParameterReconfigure(object):
 
         # Update parameters
         for param in data.config.bools + data.config.ints + data.config.strs + data.config.doubles:
-            self._parameters[param.name].value = param.value
+            if self._parameters[param.name].callback is None:
+                self._parameters[param.name].value = param.value
+            else:
+                self._parameters[param.name].value = self._parameters[param.name].callback(param.value)
+
             _updated.append(param.name)
 
 
