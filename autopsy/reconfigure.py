@@ -119,7 +119,7 @@ class ParameterEnum(Enum):
 class Parameter(object):
     """Object that represents a parameter."""
 
-    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, *args, **kwargs):
+    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, callback = None, *args, **kwargs):
         """Initialize a parameter object.
 
         Arguments:
@@ -130,6 +130,7 @@ class Parameter(object):
         description -- short comment for this parameter, str
         value -- current value of the parameter, optional, (same as default)
         enum -- enumerate object for interpreting the values, optional
+        callback -- function to be called upon receiving dynamic reconfiguration, optional, Callable
         *overflown args
         **overflown kwargs
         """
@@ -155,6 +156,9 @@ class Parameter(object):
 
         # Enumeration
         self.__enum = enum
+
+        # Callbacks
+        self.callback = callback
 
 
     @property
@@ -263,6 +267,20 @@ class Parameter(object):
             )
 
         return repr(_d)
+
+
+    @property
+    def callback(self):
+        """Return the callback function."""
+        return self.__callback
+
+
+    @callback.setter
+    def callback(self, new_value):
+        if not callable(new_value) and new_value is not None:
+            raise ValueError("Value '%s' is not a callable." % (new_value))
+
+        self.__callback = new_value
 
 
     def __str__(self):
