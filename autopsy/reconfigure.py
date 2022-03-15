@@ -72,6 +72,31 @@ P.enumeratedParam3 = inlineEnum
 # Value assignment
 P.enumeratedParam = standardEnum.Value1
 ```
+
+Callback example:
+```
+P = ParameterServer()
+P.number = 5
+
+def limit_value(new_value):
+    "Limits the value to be lower then 10."
+
+    if new_value <= 10:
+        value = new_value
+    else:
+        value = P.number.value
+
+    return value
+
+P.number.callback = limit_value
+
+P.reconfigure()
+
+# limit_value is run on every change of 'P.number'.
+```
+Note: Callback function receives new value of the parameter,
+and is required to return the true new value. It is then filled
+inside the parameter and announced to the reconfigure GUI.
 """
 ######################
 # Imports & Globals
