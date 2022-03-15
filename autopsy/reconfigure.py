@@ -559,7 +559,11 @@ class ParameterReconfigure(object):
 
         # Update parameters
         for param in data.config.bools + data.config.ints + data.config.strs + data.config.doubles:
-            self._parameters[param.name].value = param.value
+            if self._parameters[param.name].callback is None:
+                self._parameters[param.name].value = param.value
+            else:
+                self._parameters[param.name].value = self._parameters[param.name].callback(param.value)
+
             _updated.append(param.name)
 
 
