@@ -449,13 +449,13 @@ class ParameterReconfigure(object):
         pass
 
 
-    def reconfigure(self):
+    def reconfigure(self, namespace = rospy.get_name()):
 
-        self._pub_description = rospy.Publisher("%s/parameter_descriptions" % rospy.get_name(),
+        self._pub_description = rospy.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
-        self._pub_update = rospy.Publisher("%s/parameter_updates" % rospy.get_name(),
+        self._pub_update = rospy.Publisher("%s/parameter_updates" % namespace,
                                                 Config, queue_size = 1, latch = True)
-        self._service = rospy.Service("%s/set_parameters" % rospy.get_name(), Reconfigure, self._reconfigureCallback)
+        self._service = rospy.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
 
         self._redescribe()
         self._describePub()
