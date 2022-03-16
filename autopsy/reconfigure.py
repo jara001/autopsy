@@ -325,26 +325,28 @@ class Parameter(object):
     # Note: It would be nice to get around this by returning a value
     # when calling P.parameter instead of the object. But currently, I have no
     # idea how to do this.
+    @staticmethod
     def __operator__(first, second, operator):
         return operator(
             first.value if isinstance(first, Parameter) else first,
             second.value if isinstance(second, Parameter) else second
         )
 
+    __operators = ["abs", "add", "and", "div", "floordiv", "lshift", "mod", "mul", "or", "pow", "rshift", "sub", "truediv", "xor"]
 
-    __add__ = lambda first, second: Parameter.__operator__(first, second, operator.add)
-    # These are added so you can do also
-    # e.g. 5 + P.value
-    __radd__ = __add__
+    for op in __operators:
+        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+        vars()["__r%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(second, first, operator.__dict__[op])
 
-    __sub__ = lambda first, second: Parameter.__operator__(first, second, operator.sub)
-    __rsub__ = lambda first, second: Parameter.__operator__(second, first, operator.sub)
-
-    __mul__ = lambda first, second: Parameter.__operator__(first, second, operator.mul)
-    __rmul__ = lambda first, second: Parameter.__operator__(second, first, operator.mul)
-
-    __div__ = lambda first, second: Parameter.__operator__(first, second, operator.div)
-    __rdiv__ = lambda first, second: Parameter.__operator__(second, first, operator.div)
+        # Could be also done using:
+        #def _(first, second, op = _operator):
+        #    return Parameter.__operator__(first, second, operator.__dict__[op])
+        #
+        #def __(first, second, op = _operator):
+        #    return Parameter.__operator__(second, first, operator.__dict__[op])
+        #
+        #vars()[_operator] = _
+        #vars()["__r%s__" % op] = __
 
 
 class ConstrainedP(Parameter):
