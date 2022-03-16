@@ -334,6 +334,8 @@ class Parameter(object):
 
     __operators = ["abs", "add", "and", "div", "floordiv", "lshift", "mod", "mul", "or", "pow", "rshift", "sub", "truediv", "xor"]
 
+    __comparators = ["lt", "le", "eq", "ne", "ge", "gt"]
+
     for op in __operators:
         vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
         vars()["__r%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(second, first, operator.__dict__[op])
@@ -347,6 +349,9 @@ class Parameter(object):
         #
         #vars()[_operator] = _
         #vars()["__r%s__" % op] = __
+
+    for op in __comparators:
+        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
 
 
 class ConstrainedP(Parameter):
