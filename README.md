@@ -2,8 +2,8 @@
 _Python utilities for the F1tenth project._
 
 Currently, this package contains following modules:
-- [reconfigure](#reconfiguremodule)
-- [uninode](#uninodemodule)
+- [reconfigure](#reconfigure-module)
+- [uninode](#uninode-module)
 
 
 
