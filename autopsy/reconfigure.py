@@ -317,6 +317,35 @@ class Parameter(object):
         return "%s: %s" % (self.name, self.value)
 
 
+    # Overloading operators
+    # Note: It would be nice to get around this by returning a value
+    # when calling P.parameter instead of the object. But currently, I have no
+    # idea how to do this.
+    def __add__(self, other):
+        return self.value + (other.value if isinstance(other, Parameter) else other)
+
+    # These are added so you can do also
+    # e.g. 5 + P.value
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        return self.value - (other.value if isinstance(other, Parameter) else other)
+
+    def __rsub__(self, other):
+        return (other.value if isinstance(other, Parameter) else other) - self.value
+
+    def __mul__(self, other):
+        return self.value * (other.value if isinstance(other, Parameter) else other)
+
+    __rmul__ = __mul__
+
+    def __div__(self, other):
+        return self.value / (other.value if isinstance(other, Parameter) else other)
+
+    def __rdiv__(self, other):
+        return (other.value if isinstance(other, Parameter) else other) / self.value
+
+
 class ConstrainedP(Parameter):
     """Parameter that is constrained by min and max values."""
 
