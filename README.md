@@ -122,7 +122,7 @@ P.enumeratedParam = standardEnum.Value1
 
 ##### Callbacks
 
-Callback is a function that is called upon receiving a changed value of the parameter.
+Callback is a function that is called upon receiving a changed value of the parameter **from the reconfigure service**.
 
 This function has to:
 - Have at least one argument, that contains the new value of the parameter.
@@ -149,9 +149,7 @@ P.reconfigure()
 
 # limit_value is run on every change of 'P.number'.
 ```
-Note: Callback function receives new value of the parameter,
-and is required to return the true new value. It is then filled
-inside the parameter and announced to the reconfigure GUI.
+_Note: Callback function receives new value of the parameter, and is required to return the true new value. It is then filled inside the parameter and announced to the reconfigure GUI._
 
 
 #### Reconfiguration itself
