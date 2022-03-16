@@ -18,6 +18,8 @@ This module is used to make dynamic reconfiguration for our nodes much easier.
       - [Enumerated values](#enumerated-values)
       - [Callbacks](#callbacks)
   - [Reconfiguration](#reconfiguration-itself)
+- [Compatibility](#compatibility)
+  - [Until 0.4.0](#until-040)
 - [Example](#full-example)
 
 
@@ -182,6 +184,37 @@ print (P.something)
 P.reconfigure()
 ```
 _Note: Passing a string to `P.reconfigure()` changes the namespace of the ParameterServer in ROS._
+
+
+### Compatibility
+
+In order to make `autopsy.reconfiguration` optional, you can use following construct:
+
+```python
+try:
+    from autopsy.reconfigure import ParameterServer
+    AUTOPSY_AVAILABLE = True
+
+except:
+    class ParameterServer(dict):
+        """dot.notation access to dictionary attributes
+
+        Source:
+        https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary
+        """
+        __getattr__ = dict.get
+        __setattr__ = dict.__setitem__
+        __delattr__ = dict.__delitem__
+
+    AUTOPSY_AVAILABLE = False
+```
+_Note: It is possible that it breaks in some versions. However, it is more usable nowadays, as operators are overloaded. (>0.4.0)_
+
+#### Until 0.4.0
+
+To make your code runnable on `<= 0.4.0` stick to these rules:
+- `P.reconfigure()` has no argument.
+- Everytime you access the parameter value use `.value`.
 
 
 ### Full example
