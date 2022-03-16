@@ -64,7 +64,9 @@ Upon assigning a value to parameter, an internal object is created.
     - `max` -- maximum value for the parameter, int/float only
     - `callback` -- function to be called upon receiving parameter change, callable
 
-**The value of the parameter is received by `.value`.**
+**Accessing the value** can be done using `.value`. However, the operators are overloaded, meaning that you can freely use `P.something + 5` without `.value`.
+_Note: The `.value` is used only when you want to store it somewhere else._
+_Note: Features `is`, `not` and `bool()` are not currently available here._
 
 Example:
 ```python
