@@ -332,6 +332,16 @@ class Parameter(object):
             return operator(
                 first.value if isinstance(first, Parameter) else first
             )
+        elif hasattr(first, "enum") and isinstance(second, Enum):
+            return operator(
+                first.enum(first.value),
+                second
+            )
+        elif isinstance(first, Enum) and hasattr(second, "enum"):
+            return operator(
+                first,
+                second.enum(second.value)
+            )
         else:
             return operator(
                 first.value if isinstance(first, Parameter) else first,
