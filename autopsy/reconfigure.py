@@ -106,6 +106,10 @@ inside the parameter and announced to the reconfigure GUI.
 import rospy
 
 
+# Overloading the operators
+import operator
+
+
 # Enumerated parameters support
 from enum import Enum, EnumMeta
 
@@ -321,29 +325,26 @@ class Parameter(object):
     # Note: It would be nice to get around this by returning a value
     # when calling P.parameter instead of the object. But currently, I have no
     # idea how to do this.
-    def __add__(self, other):
-        return self.value + (other.value if isinstance(other, Parameter) else other)
+    def __operator__(first, second, operator):
+        return operator(
+            first.value if isinstance(first, Parameter) else first,
+            second.value if isinstance(second, Parameter) else second
+        )
 
+
+    __add__ = lambda first, second: Parameter.__operator__(first, second, operator.add)
     # These are added so you can do also
     # e.g. 5 + P.value
     __radd__ = __add__
 
-    def __sub__(self, other):
-        return self.value - (other.value if isinstance(other, Parameter) else other)
+    __sub__ = lambda first, second: Parameter.__operator__(first, second, operator.sub)
+    __rsub__ = lambda first, second: Parameter.__operator__(second, first, operator.sub)
 
-    def __rsub__(self, other):
-        return (other.value if isinstance(other, Parameter) else other) - self.value
+    __mul__ = lambda first, second: Parameter.__operator__(first, second, operator.mul)
+    __rmul__ = lambda first, second: Parameter.__operator__(second, first, operator.mul)
 
-    def __mul__(self, other):
-        return self.value * (other.value if isinstance(other, Parameter) else other)
-
-    __rmul__ = __mul__
-
-    def __div__(self, other):
-        return self.value / (other.value if isinstance(other, Parameter) else other)
-
-    def __rdiv__(self, other):
-        return (other.value if isinstance(other, Parameter) else other) / self.value
+    __div__ = lambda first, second: Parameter.__operator__(first, second, operator.div)
+    __rdiv__ = lambda first, second: Parameter.__operator__(second, first, operator.div)
 
 
 class ConstrainedP(Parameter):
