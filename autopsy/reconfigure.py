@@ -755,12 +755,12 @@ class ParameterServer(ParameterReconfigure):
             else:
                 kwargs = dict()
 
-            if isinstance(value, int):
+            if isinstance(value, bool):
+                self._parameters[name] = BoolP(name, value, **kwargs)
+            elif isinstance(value, int):
                 self._parameters[name] = IntP(name, value, **kwargs)
             elif isinstance(value, float):
                 self._parameters[name] = DoubleP(name, value, **kwargs)
-            elif isinstance(value, bool):
-                self._parameters[name] = BoolP(name, value, **kwargs)
             elif isinstance(value, str):
                 self._parameters[name] = StrP(name, value, **kwargs)
             else:
