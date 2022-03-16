@@ -106,6 +106,10 @@ inside the parameter and announced to the reconfigure GUI.
 import rospy
 
 
+# Overloading the operators
+import operator
+
+
 # Enumerated parameters support
 from enum import Enum, EnumMeta
 
@@ -315,6 +319,55 @@ class Parameter(object):
         str
         """
         return "%s: %s" % (self.name, self.value)
+
+
+    # Overloading operators
+    # Note: It would be nice to get around this by returning a value
+    # when calling P.parameter instead of the object. But currently, I have no
+    # idea how to do this.
+    # Other note: Currently, 'is', 'not' and 'bool()' are not supported.
+    @staticmethod
+    def __operator__(first, second = None, operator = None):
+        if second is None:
+            return operator(
+                first.value if isinstance(first, Parameter) else first
+            )
+        else:
+            return operator(
+                first.value if isinstance(first, Parameter) else first,
+                second.value if isinstance(second, Parameter) else second
+            )
+
+    __operators = ["abs", "add", "and", "div", "floordiv", "lshift", "mod", "mul", "or", "pow", "rshift", "sub", "truediv", "xor"]
+
+    __comparators = ["lt", "le", "eq", "ne", "ge", "gt"]
+
+    __uoperators = ["abs", "index", "invert", "neg", "pos"]
+
+    __functions = ["int", "float", "complex", "round", "trunc", "floor", "ceil"]
+
+    for op in __operators:
+        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+        vars()["__r%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(second, first, operator.__dict__[op])
+
+        # Could be also done using:
+        #def _(first, second, op = _operator):
+        #    return Parameter.__operator__(first, second, operator.__dict__[op])
+        #
+        #def __(first, second, op = _operator):
+        #    return Parameter.__operator__(second, first, operator.__dict__[op])
+        #
+        #vars()[_operator] = _
+        #vars()["__r%s__" % op] = __
+
+    for op in __comparators:
+        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+
+    for op in __uoperators:
+        vars()["__%s__" % op] = lambda first, second = None, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+
+    for op in __functions:
+        vars()["__%s__" % op] = lambda first, op = "__%s__" % op: getattr(first.value, op)()
 
 
 class ConstrainedP(Parameter):
