@@ -344,6 +344,8 @@ class Parameter(object):
 
     __uoperators = ["abs", "index", "invert", "neg", "pos"]
 
+    __functions = ["int", "float", "complex", "round", "trunc", "floor", "ceil"]
+
     for op in __operators:
         vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
         vars()["__r%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(second, first, operator.__dict__[op])
@@ -363,6 +365,9 @@ class Parameter(object):
 
     for op in __uoperators:
         vars()["__%s__" % op] = lambda first, second = None, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+
+    for op in __functions:
+        vars()["__%s__" % op] = lambda first, op = "__%s__" % op: getattr(first.value, op)()
 
 
 class ConstrainedP(Parameter):
