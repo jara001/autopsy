@@ -208,7 +208,8 @@ except:
 
     AUTOPSY_AVAILABLE = False
 ```
-_Note: It is possible that it breaks in some versions. However, it is more usable nowadays, as operators are overloaded. (>0.4.0)_
+
+This is effective for `>0.4.0`. Just do not use `.value` at all.
 
 #### Until 0.4.0
 
