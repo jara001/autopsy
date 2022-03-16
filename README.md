@@ -214,7 +214,7 @@ Universal node (or uninode) serves as a compatibility layer for a ROS node to be
 
 |           ROS 1           |          uninode          |           ROS 2           |
 | ------------------------- | ------------------------- | ------------------------- |
-| rospy.init_node           |                   self.\_\_init\_\_                   |
+| rospy.init_node           | self.\_\_init\_\_         | self.\_\_init\_\_         |
 | rospy.Publisher           | self.Publisher+           | self.create_publisher     |
 | rospy.Subscriber          | self.Subscriber+          | self.create_subscription  |
 | rospy.Rate                | self.Rate+                | self.create_rate          |
