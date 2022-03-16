@@ -325,16 +325,24 @@ class Parameter(object):
     # Note: It would be nice to get around this by returning a value
     # when calling P.parameter instead of the object. But currently, I have no
     # idea how to do this.
+    # Other note: Currently, 'is', 'not' and 'bool()' are not supported.
     @staticmethod
-    def __operator__(first, second, operator):
-        return operator(
-            first.value if isinstance(first, Parameter) else first,
-            second.value if isinstance(second, Parameter) else second
-        )
+    def __operator__(first, second = None, operator = None):
+        if second is None:
+            return operator(
+                first.value if isinstance(first, Parameter) else first
+            )
+        else:
+            return operator(
+                first.value if isinstance(first, Parameter) else first,
+                second.value if isinstance(second, Parameter) else second
+            )
 
     __operators = ["abs", "add", "and", "div", "floordiv", "lshift", "mod", "mul", "or", "pow", "rshift", "sub", "truediv", "xor"]
 
     __comparators = ["lt", "le", "eq", "ne", "ge", "gt"]
+
+    __uoperators = ["abs", "index", "invert", "neg", "pos"]
 
     for op in __operators:
         vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
@@ -352,6 +360,9 @@ class Parameter(object):
 
     for op in __comparators:
         vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+
+    for op in __uoperators:
+        vars()["__%s__" % op] = lambda first, second = None, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
 
 
 class ConstrainedP(Parameter):
