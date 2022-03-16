@@ -55,9 +55,11 @@ try:
     import rospy
 
     from .ros1_node import Node as NodeI
+    from .ros1_qos import *
 except:
     try:
         from rclpy.node import Node as NodeI
+        from rclpy.qos import *
     except:
         print ("No ROS package detected.")
 
@@ -89,7 +91,7 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Publisher-class.html
         """
-        return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = queue_size)
+        return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = QoSProfile(depth = queue_size, durability = DurabilityPolicy.TRANSIENT_LOCAL if latch else DurabilityPolicy.VOLATILE))
 
 
     def Subscriber(self, name, data_class, callback=None, callback_args=None, queue_size=None, buff_size=65536, tcp_nodelay=False):
@@ -104,7 +106,7 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Subscriber-class.html
         """
-        return super(Node, self).create_subscription(msg_type = data_class, topic = name, callback = callback, qos_profile = queue_size)
+        return super(Node, self).create_subscription(msg_type = data_class, topic = name, callback = callback, qos_profile = QoSProfile(depth = queue_size))
 
 
     def Rate(self, hz, reset=False):
