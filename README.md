@@ -11,6 +11,15 @@ Currently, this package contains following modules:
 
 This module is used to make dynamic reconfiguration for our nodes much easier.
 
+- [Background](#background)
+- [Usage](#usage)
+  - [Import](#import)
+  - [Parameter definition](#parameter-definition)
+      - [Enumerated values](#enumerated-values)
+      - [Callbacks](#callbacks)
+  - [Reconfiguration](#reconfiguration-itself)
+- [Example](#full-example)
+
 
 ### Background
 
@@ -212,6 +221,10 @@ while not rospy.is_shutdown():
 Universal node class with ROS 1 / ROS 2 support.
 
 Universal node (or uninode) serves as a compatibility layer for a ROS node to be executable from both ROS versions. Basically, for ROS2 we use mostly the original 'rclpy.node.Node', whereas for ROS1 we try to match its functions onto this class.
+
+- [Relations](#relations)
+- [Differences](#differences)
+- [Example](#full-example-1)
 
 
 ### Relations
