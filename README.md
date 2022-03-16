@@ -212,15 +212,15 @@ Universal node (or uninode) serves as a compatibility layer for a ROS node to be
 This module contains class Node.
 
 Relations:
--------------------------------------------------------------------------------------
+
 |           ROS 1           |          uninode          |           ROS 2           |
-|-----------------------------------------------------------------------------------|
-| rospy.init_node           |                     self.__init__                     |
+| ------------------------- | ------------------------- | ------------------------- |
+| rospy.init_node           |                   self.\_\_init\_\_                   |
 | rospy.Publisher           | self.Publisher+           | self.create_publisher     |
 | rospy.Subscriber          | self.Subscriber+          | self.create_subscription  |
 | rospy.Rate                | self.Rate+                | self.create_rate          |
 | rospy.Timer               | self.Timer+               | self.create_timer         |
--------------------------------------------------------------------------------------
+
 
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
 
