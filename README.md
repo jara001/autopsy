@@ -209,9 +209,8 @@ Universal node class with ROS 1 / ROS 2 support.
 
 Universal node (or uninode) serves as a compatibility layer for a ROS node to be executable from both ROS versions. Basically, for ROS2 we use mostly the original 'rclpy.node.Node', whereas for ROS1 we try to match its functions onto this class.
 
-This module contains class Node.
 
-Relations:
+### Relations
 
 |           ROS 1           |          uninode          |           ROS 2           |
 | ------------------------- | ------------------------- | ------------------------- |
@@ -224,7 +223,9 @@ Relations:
 
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
 
-Differences:
+
+### Differences
+
 - ROS2
     - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
       in ROS1). Therefore, the function has to be created as:
