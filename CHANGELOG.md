@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.4.1 - 2022-03-17
 ### Fixed
 - `uninode`: Default value of `queue_size` for Subscriber is set to 10.
 
