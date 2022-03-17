@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `uninode`:
   - `QoSProfile` compatible implementation for ROS1.
   - Support for latched publishers.
+  - ROS services.
 - Documentation for the package.
 
 ### Changed

@@ -94,3 +94,18 @@ class Node(object):
         Callback in ROS1 takes an argument 'rospy.TimerEvent', however not in ROS2.
         """
         return rospy.Timer(period = rospy.Duration(timer_period_sec), callback = callback)
+
+
+    def create_service(self, srv_type, srv_name, callback, **kwargs):
+        """Create a service object.
+
+        Arguments:
+        srv_type -- class of the used ROS service message
+        srv_name -- name of the service
+        callback -- function to be called upon receiving a service request, Callable[srv_type/ServiceRequest]
+        **kwargs -- other, currently unsupported arguments
+
+        Reference:
+        https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_service
+        """
+        return rospy.Service(name = srv_name, service_class = srv_type, handler = callback)

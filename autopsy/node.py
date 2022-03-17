@@ -132,3 +132,17 @@ class Node(NodeI):
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Timer-class.html
         """
         return super(Node, self).create_timer(timer_period_sec = period, callback = callback)
+
+
+    def Service(self, name, service_class, handler, buff_size=65536, error_handler=None):
+        """Create a service object.
+
+        Arguments (only those that are used):
+        name -- name of the service, str
+        service_class -- class of the ROS service message
+        handler -- function to be called upon receiving service request, Callable[service_class/ServiceRequest]
+
+        Reference:
+        http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html
+        """
+        return super(Node, self).create_service(srv_type = service_class, srv_name = name, callback = handler)
