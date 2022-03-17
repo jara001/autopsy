@@ -26,6 +26,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - Internal class variables are properly initialized so the data are not shared between instances.
   - Bool parameter is now correctly registered as boolean instead of integer.
 
+## 0.4.1 - 2022-03-17
+### Fixed
+- `uninode`: Default value of `queue_size` for Subscriber is set to 10.
+
 ## 0.4.0 - 2022-03-08
 ### Added
 - `uninode` utility to create a compatibility layer for ROS1-ROS2 nodes.
