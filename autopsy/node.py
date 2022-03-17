@@ -23,6 +23,12 @@ Relations:
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
 
 Differences:
+- ROS1
+    - Subscriber in ROS1 can have None 'queue_size', setting it to the infinite value.
+      However, this is not supported in ROS2. Therefore, in here, we set the default
+      value to 10, as a default value in ROS2:
+      https://docs.ros.org/en/rolling/Concepts/About-Quality-of-Service-Settings.html#qos-profiles
+      This is not done for Publisher, as ROS1 writes a warning when passing None.
 - ROS2
     - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
       in ROS1). Therefore, the function has to be created as:
@@ -92,7 +98,7 @@ class Node(NodeI):
         return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = queue_size)
 
 
-    def Subscriber(self, name, data_class, callback=None, callback_args=None, queue_size=None, buff_size=65536, tcp_nodelay=False):
+    def Subscriber(self, name, data_class, callback=None, callback_args=None, queue_size=10, buff_size=65536, tcp_nodelay=False):
         """Create a subscriber. (ROS1 version)
 
         Arguments (only those that are used):
