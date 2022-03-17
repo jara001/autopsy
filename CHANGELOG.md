@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - `QoSProfile` compatible implementation for ROS1.
   - Support for latched publishers.
   - ROS services.
+  - Function `get_name()` for ROS1 version of the module.
 - Documentation for the package.
 
 ### Changed

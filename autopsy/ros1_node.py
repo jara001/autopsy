@@ -35,6 +35,16 @@ class Node(object):
         rospy.init_node(name = name)
 
 
+    def get_name(self):
+        """Obtain the name of the node.
+
+        Reference:
+        http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#get_name
+        https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_name
+        """
+        return rospy.get_name()
+
+
     def create_publisher(self, msg_type, topic, qos_profile, **kwargs):
         """Create a publisher.
 
