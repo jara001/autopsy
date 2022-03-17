@@ -279,6 +279,12 @@ Note: Lines with '+' denote that the same function as for ROS2 can be used for u
 
 ### Differences
 
+- ROS1
+    - Subscriber in ROS1 can have None 'queue_size', setting it to the infinite value.
+      However, this is not supported in ROS2. Therefore, in here, we set the default
+      value to 10, as a default value in ROS2:
+      https://docs.ros.org/en/rolling/Concepts/About-Quality-of-Service-Settings.html#qos-profiles
+      This is not done for Publisher, as ROS1 writes a warning when passing None.
 - ROS2
     - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
       in ROS1). Therefore, the function has to be created as:
