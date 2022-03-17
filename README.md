@@ -265,13 +265,13 @@ Universal node (or uninode) serves as a compatibility layer for a ROS node to be
 
 |           ROS 1           |          uninode          |           ROS 2           |
 | ------------------------- | ------------------------- | ------------------------- |
-| rospy.init_node           | self.\_\_init\_\_         | self.\_\_init\_\_         |
-| rospy.get_name            | self.get_name             | self.get_name             |
-| rospy.Publisher           | self.Publisher+           | self.create_publisher     |
-| rospy.Subscriber          | self.Subscriber+          | self.create_subscription  |
-| rospy.Rate                | self.Rate+                | self.create_rate          |
-| rospy.Timer               | self.Timer+               | self.create_timer         |
-| rospy.Service             | self.Service+             | self.create_service       |
+| [rospy.init_node](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#init_node)                          | [self.\_\_init\_\_](autopsy/node.py#L76)          | [self.\_\_init\_\_](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node)                                 |
+| [rospy.get_name](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#get_name)                            | self.get_name                                     | [self.get_name](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_name)                            |
+| [rospy.Publisher](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Publisher-class.html)                    | [self.Publisher](autopsy/node.py#L85)+            | [self.create_publisher](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_publisher)            |
+| [rospy.Subscriber](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Subscriber-class.html)                  | [self.Subscriber](autopsy/node.py#L99)+           | [self.create_subscription](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_subscription)      |
+| [rospy.Rate](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Rate-class.html)                               | [self.Rate](autopsy/node.py#L114)+                | [self.create_rate](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_rate)                      |
+| [rospy.Timer](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Timer-class.html)                             | [self.Timer](autopsy/node.py#L126)+               | [self.create_timer](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_timer)                    |
+| [rospy.Service](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html)           | [self.Service](autopsy/node.py#L139)+             | [self.create_service](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_service)                |
 
 
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
