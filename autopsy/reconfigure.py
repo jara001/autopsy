@@ -494,6 +494,54 @@ class StrP(Parameter):
 
 
 ######################
+# ParameterDict
+######################
+
+class ParameterDict(dict):
+    """Extension on ordinary dict that maintains the order of elements."""
+
+    # Auxiliary storage
+    _order = None
+
+
+    def __init__(self):
+        """Initialize the object."""
+        super(ParameterDict, self).__init__()
+
+        self._order = []
+
+
+    def __setitem__(self, name, value):
+        """Overload the original setitem to keep order."""
+
+        super(ParameterDict, self).__setitem__(name, value)
+
+        if name not in self._order:
+            self._order.append(name)
+
+
+    def __delitem__(self, name):
+        """Overload item deletion to remove it from the order."""
+
+        super(ParameterDict, self).__delitem__(name)
+
+        self._order.remove(name)
+
+
+    def items(self):
+        """Return items in a given order."""
+        return sorted(
+            super(ParameterDict, self).items(),
+            key = lambda i: self._order.index(i[0])
+        )
+
+
+    def values(self):
+        """Return values in a given order."""
+        return [ value for _, value in self.items() ]
+
+
+######################
 # ParameterReconfigure
 ######################
 
@@ -518,7 +566,7 @@ class ParameterReconfigure(object):
         https://stackoverflow.com/questions/13389325/why-do-two-class-instances-appear-to-be-sharing-the-same-data
         https://stackoverflow.com/questions/1132941/least-astonishment-and-the-mutable-default-argument
         """
-        self._parameters = {}
+        self._parameters = ParameterDict()
         self._description = ConfigDescription()
         self._update = Config()
         pass
