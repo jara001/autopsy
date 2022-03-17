@@ -102,8 +102,8 @@ inside the parameter and announced to the reconfigure GUI.
 # Imports & Globals
 ######################
 
-# ROS Python client library
-import rospy
+# ROS Python client library (inside)
+import autopsy.node
 
 
 # Overloading the operators
@@ -572,16 +572,19 @@ class ParameterReconfigure(object):
         pass
 
 
-    def reconfigure(self, namespace = None):
+    def reconfigure(self, namespace = None, node = None):
+
+        if node is None:
+            node = autopsy.node.rospy
 
         if namespace is None:
-            namespace = rospy.get_name()
+            namespace = node.get_name()
 
-        self._pub_description = rospy.Publisher("%s/parameter_descriptions" % namespace,
+        self._pub_description = node.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
-        self._pub_update = rospy.Publisher("%s/parameter_updates" % namespace,
+        self._pub_update = node.Publisher("%s/parameter_updates" % namespace,
                                                 Config, queue_size = 1, latch = True)
-        self._service = rospy.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
+        self._service = node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
 
         self._redescribe()
         self._describePub()

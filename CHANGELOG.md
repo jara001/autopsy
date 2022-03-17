@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - Property `callback` that runs associated function on parameter change (dynamic change only).
   - Function `reconfigure()` can be called with an optional parameter to set the namespace of the `ParameterServer`.
   - Operators for the parameters (at least most of them).
+  - Function `reconfigure()` can be passed node object to support (hopefully) ROS2.
 - `uninode`:
   - `QoSProfile` compatible implementation for ROS1.
   - Support for latched publishers.
