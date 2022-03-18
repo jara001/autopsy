@@ -64,12 +64,17 @@ try:
 
     from .ros1_node import Node as NodeI
     from .ros1_qos import *
+
+    ROS_VERSION = 1
 except:
     try:
         from rclpy.node import Node as NodeI
         from rclpy.qos import *
+
+        ROS_VERSION = 2
     except:
         print ("No ROS package detected.")
+        ROS_VERSION = 0
 
 
 ######################
