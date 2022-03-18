@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - Support for latched publishers.
   - ROS services.
   - Function `get_name()` for ROS1 version of the module.
+  - `ROS_VERSION` variable.
+  - Functions not implemented are called in the current ROS version with warning.
 - Documentation for the package.
 
 ### Changed
