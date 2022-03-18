@@ -64,12 +64,19 @@ try:
 
     from .ros1_node import Node as NodeI
     from .ros1_qos import *
+
+    ROS_VERSION = 1
 except:
     try:
         from rclpy.node import Node as NodeI
         from rclpy.qos import *
+
+        from .ros1_node import Node as NodeR1
+
+        ROS_VERSION = 2
     except:
         print ("No ROS package detected.")
+        ROS_VERSION = 0
 
 
 ######################
@@ -154,3 +161,34 @@ class Node(NodeI):
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html
         """
         return super(Node, self).create_service(srv_type = service_class, srv_name = name, callback = handler)
+
+
+    def __getattr__(self, name):
+        """Try to find undefined function in the current ROS environment.
+
+        Arguments:
+        name -- name of the attribute / method
+        """
+
+        if ROS_VERSION == 1:
+            if hasattr(rospy, name):
+                print ("[WARNING] Unsupported attribute 'rospy.%s'." % name)
+
+            return getattr(rospy, name)
+        else:
+            # Raise AttributeError
+            return super(Node, self).__getattribute__(name)
+
+
+    def __getattribute__(self, name):
+        """Get attribute and warn if not supported in uninode.
+
+        Arguments:
+        name -- name of the attribute / method
+        """
+
+        if ROS_VERSION == 2:
+            if not hasattr(NodeR1, name):
+                print ("[WARNING] Unsupported attribute 'self.%s'." % name)
+
+        return super(Node, self).__getattribute__(name)

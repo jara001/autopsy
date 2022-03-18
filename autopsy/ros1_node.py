@@ -6,7 +6,10 @@
 # Imports & Globals
 ######################
 
-import rospy
+try:
+    import rospy
+except:
+    pass
 
 from .ros1_qos import DurabilityPolicy
 
