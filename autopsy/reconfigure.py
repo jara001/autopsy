@@ -116,7 +116,11 @@ from enum import Enum, EnumMeta
 
 # Message types
 from dynamic_reconfigure.msg import ConfigDescription, Config, Group, ParamDescription, BoolParameter, IntParameter, StrParameter, DoubleParameter, GroupState
-from dynamic_reconfigure.srv import Reconfigure, ReconfigureResponse
+from dynamic_reconfigure.srv import Reconfigure
+
+if autopsy.node.ROS_VERSION == 1:
+    # ROS1 compiles the messages into two, in contrast to ROS2.
+    from dynamic_reconfigure.srv import ReconfigureResponse
 
 
 # https://stackoverflow.com/questions/2440692/formatting-floats-without-trailing-zeros
@@ -699,7 +703,7 @@ class ParameterReconfigure(object):
         self._update = _config
 
 
-    def _reconfigureCallback(self, data):
+    def _reconfigureCallback(self, data, response = None):
         """Service callback for dynamic reconfiguration.
 
         Arguments:
@@ -726,9 +730,13 @@ class ParameterReconfigure(object):
             self._updatePub()
 
 
-        return ReconfigureResponse(
-            self._get_config(condition = lambda x: x in _updated)
-        )
+        if response is None:
+            return ReconfigureResponse(
+                self._get_config(condition = lambda x: x in _updated)
+            )
+        else:
+            response.config = self._get_config(condition = lambda x: x in _updated)
+            return response
 
 
     def __str__(self):
