@@ -35,6 +35,24 @@ Differences:
     - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
       in ROS1). Therefore, the function has to be created as:
       `def callback(self, *args, **kwargs)`
+- Common
+    - Services are handled slightly differently in both ROS versions. At first, service
+      message is compiled into two in ROS1. In ROS2 there is only one message type.
+      In addition, service callback has only one argument in ROS1, whereas there are
+      two arguments in ROS2 (second is the response).
+      To make it compatible with both versions stick to this:
+      ```python
+      if autopsy.node.ROS_VERSION == 1:
+          from package.srv import ResponseMessage
+
+      def callback(self, msg, response = None):
+          ...
+          if response is None:
+              return ResponseMessage(...)
+          else:
+              response.data = ...
+              return response
+      ```
 
 
 Example:
