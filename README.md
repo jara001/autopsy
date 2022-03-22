@@ -20,6 +20,7 @@ This module is used to make dynamic reconfiguration for our nodes much easier.
   - [Reconfiguration](#reconfiguration-itself)
 - [Compatibility](#compatibility)
   - [Until 0.4.0](#until-040)
+  - [ROS 2](#ros-2)
 - [Example](#full-example)
 
 
@@ -216,6 +217,18 @@ This is effective for `>0.4.0`. Just do not use `.value` at all.
 To make your code runnable on `<= 0.4.0` stick to these rules:
 - `P.reconfigure()` has no argument.
 - Everytime you access the parameter value use `.value`.
+
+#### ROS 2
+
+Current implementation is not compatible with ROS2. Some parts are usable, however the reconfiguration part is not perfect. At least, the definition of the parameters and accessing their value seems working. Pull requests are welcome!
+
+Since it requires `dynamic_reconfigure` messages, you can download them [here](https://github.com/jara001/dynamic_reconfigure).
+
+If you want to test the reconfiguration, you have to pass the Node instance inside `node` argument:
+
+```python
+P.reconfigure(node = node)
+```
 
 
 ### Full example
