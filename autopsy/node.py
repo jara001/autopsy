@@ -14,10 +14,12 @@ Relations:
 |           ROS 1           |          uninode          |           ROS 2           |
 |-----------------------------------------------------------------------------------|
 | rospy.init_node           |                     self.__init__                     |
+| rospy.get_name            |                     self.get_name                     |
 | rospy.Publisher           | self.Publisher+           | self.create_publisher     |
 | rospy.Subscriber          | self.Subscriber+          | self.create_subscription  |
 | rospy.Rate                | self.Rate+                | self.create_rate          |
 | rospy.Timer               | self.Timer+               | self.create_timer         |
+| rospy.Service             | self.Service+             | self.create_service       |
 -------------------------------------------------------------------------------------
 
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
@@ -33,6 +35,24 @@ Differences:
     - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
       in ROS1). Therefore, the function has to be created as:
       `def callback(self, *args, **kwargs)`
+- Common
+    - Services are handled slightly differently in both ROS versions. At first, service
+      message is compiled into two in ROS1. In ROS2 there is only one message type.
+      In addition, service callback has only one argument in ROS1, whereas there are
+      two arguments in ROS2 (second is the response).
+      To make it compatible with both versions stick to this:
+      ```python
+      if autopsy.node.ROS_VERSION == 1:
+          from package.srv import ResponseMessage
+
+      def callback(self, msg, response = None):
+          ...
+          if response is None:
+              return ResponseMessage(...)
+          else:
+              response.data = ...
+              return response
+      ```
 
 
 Example:
@@ -61,11 +81,20 @@ try:
     import rospy
 
     from .ros1_node import Node as NodeI
+    from .ros1_qos import *
+
+    ROS_VERSION = 1
 except:
     try:
         from rclpy.node import Node as NodeI
+        from rclpy.qos import *
+
+        from .ros1_node import Node as NodeR1
+
+        ROS_VERSION = 2
     except:
         print ("No ROS package detected.")
+        ROS_VERSION = 0
 
 
 ######################
@@ -95,7 +124,7 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Publisher-class.html
         """
-        return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = queue_size)
+        return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = QoSProfile(depth = queue_size, durability = DurabilityPolicy.TRANSIENT_LOCAL if latch else DurabilityPolicy.VOLATILE))
 
 
     def Subscriber(self, name, data_class, callback=None, callback_args=None, queue_size=10, buff_size=65536, tcp_nodelay=False):
@@ -110,7 +139,7 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Subscriber-class.html
         """
-        return super(Node, self).create_subscription(msg_type = data_class, topic = name, callback = callback, qos_profile = queue_size)
+        return super(Node, self).create_subscription(msg_type = data_class, topic = name, callback = callback, qos_profile = QoSProfile(depth = queue_size))
 
 
     def Rate(self, hz, reset=False):
@@ -136,3 +165,48 @@ class Node(NodeI):
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Timer-class.html
         """
         return super(Node, self).create_timer(timer_period_sec = period, callback = callback)
+
+
+    def Service(self, name, service_class, handler, buff_size=65536, error_handler=None):
+        """Create a service object.
+
+        Arguments (only those that are used):
+        name -- name of the service, str
+        service_class -- class of the ROS service message
+        handler -- function to be called upon receiving service request, Callable[service_class/ServiceRequest]
+
+        Reference:
+        http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html
+        """
+        return super(Node, self).create_service(srv_type = service_class, srv_name = name, callback = handler)
+
+
+    def __getattr__(self, name):
+        """Try to find undefined function in the current ROS environment.
+
+        Arguments:
+        name -- name of the attribute / method
+        """
+
+        if ROS_VERSION == 1:
+            if hasattr(rospy, name):
+                print ("[WARNING] Unsupported attribute 'rospy.%s'." % name)
+
+            return getattr(rospy, name)
+        else:
+            # Raise AttributeError
+            return super(Node, self).__getattribute__(name)
+
+
+    def __getattribute__(self, name):
+        """Get attribute and warn if not supported in uninode.
+
+        Arguments:
+        name -- name of the attribute / method
+        """
+
+        if ROS_VERSION == 2:
+            if not hasattr(NodeR1, name):
+                print ("[WARNING] Unsupported attribute 'self.%s'." % name)
+
+        return super(Node, self).__getattribute__(name)

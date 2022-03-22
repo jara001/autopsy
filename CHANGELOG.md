@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.5.0 - 2022-03-22
+### Added
+- `reconfigure`:
+  - Property `callback` that runs associated function on parameter change (dynamic change only).
+  - Function `reconfigure()` can be called with an optional parameter to set the namespace of the `ParameterServer`.
+  - Operators for the parameters (at least most of them).
+  - Function `reconfigure()` can be passed node object to support (hopefully) ROS2.
+- `uninode`:
+  - `QoSProfile` compatible implementation for ROS1.
+  - Support for latched publishers.
+  - ROS services.
+  - Function `get_name()` for ROS1 version of the module.
+  - `ROS_VERSION` variable.
+  - Functions not implemented are called in the current ROS version with warning.
+- Documentation for the package.
+
+### Changed
+- `reconfigure`:
+  - Parameters are now kept in the same order as registered.
+
+### Fixed
+- `reconfigure`:
+  - Internal class variables are properly initialized so the data are not shared between instances.
+  - Bool parameter is now correctly registered as boolean instead of integer.
+
 ## 0.4.1 - 2022-03-17
 ### Fixed
 - `uninode`: Default value of `queue_size` for Subscriber is set to 10.

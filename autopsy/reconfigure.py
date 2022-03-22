@@ -72,13 +72,42 @@ P.enumeratedParam3 = inlineEnum
 # Value assignment
 P.enumeratedParam = standardEnum.Value1
 ```
+
+Callback example:
+```
+P = ParameterServer()
+P.number = 5
+
+def limit_value(new_value):
+    "Limits the value to be lower then 10."
+
+    if new_value <= 10:
+        value = new_value
+    else:
+        value = P.number.value
+
+    return value
+
+P.number.callback = limit_value
+
+P.reconfigure()
+
+# limit_value is run on every change of 'P.number'.
+```
+Note: Callback function receives new value of the parameter,
+and is required to return the true new value. It is then filled
+inside the parameter and announced to the reconfigure GUI.
 """
 ######################
 # Imports & Globals
 ######################
 
-# ROS Python client library
-import rospy
+# ROS Python client library (inside)
+import autopsy.node
+
+
+# Overloading the operators
+import operator
 
 
 # Enumerated parameters support
@@ -87,7 +116,11 @@ from enum import Enum, EnumMeta
 
 # Message types
 from dynamic_reconfigure.msg import ConfigDescription, Config, Group, ParamDescription, BoolParameter, IntParameter, StrParameter, DoubleParameter, GroupState
-from dynamic_reconfigure.srv import Reconfigure, ReconfigureResponse
+from dynamic_reconfigure.srv import Reconfigure
+
+if autopsy.node.ROS_VERSION == 1:
+    # ROS1 compiles the messages into two, in contrast to ROS2.
+    from dynamic_reconfigure.srv import ReconfigureResponse
 
 
 # https://stackoverflow.com/questions/2440692/formatting-floats-without-trailing-zeros
@@ -119,7 +152,7 @@ class ParameterEnum(Enum):
 class Parameter(object):
     """Object that represents a parameter."""
 
-    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, *args, **kwargs):
+    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, callback = None, *args, **kwargs):
         """Initialize a parameter object.
 
         Arguments:
@@ -130,6 +163,7 @@ class Parameter(object):
         description -- short comment for this parameter, str
         value -- current value of the parameter, optional, (same as default)
         enum -- enumerate object for interpreting the values, optional
+        callback -- function to be called upon receiving dynamic reconfiguration, optional, Callable
         *overflown args
         **overflown kwargs
         """
@@ -155,6 +189,9 @@ class Parameter(object):
 
         # Enumeration
         self.__enum = enum
+
+        # Callbacks
+        self.callback = callback
 
 
     @property
@@ -265,6 +302,20 @@ class Parameter(object):
         return repr(_d)
 
 
+    @property
+    def callback(self):
+        """Return the callback function."""
+        return self.__callback
+
+
+    @callback.setter
+    def callback(self, new_value):
+        if not callable(new_value) and new_value is not None:
+            raise ValueError("Value '%s' is not a callable." % (new_value))
+
+        self.__callback = new_value
+
+
     def __str__(self):
         """Formats the parameter into a string.
 
@@ -272,6 +323,65 @@ class Parameter(object):
         str
         """
         return "%s: %s" % (self.name, self.value)
+
+
+    # Overloading operators
+    # Note: It would be nice to get around this by returning a value
+    # when calling P.parameter instead of the object. But currently, I have no
+    # idea how to do this.
+    # Other note: Currently, 'is', 'not' and 'bool()' are not supported.
+    @staticmethod
+    def __operator__(first, second = None, operator = None):
+        if second is None:
+            return operator(
+                first.value if isinstance(first, Parameter) else first
+            )
+        elif hasattr(first, "enum") and isinstance(second, Enum):
+            return operator(
+                first.enum(first.value),
+                second
+            )
+        elif isinstance(first, Enum) and hasattr(second, "enum"):
+            return operator(
+                first,
+                second.enum(second.value)
+            )
+        else:
+            return operator(
+                first.value if isinstance(first, Parameter) else first,
+                second.value if isinstance(second, Parameter) else second
+            )
+
+    __operators = ["abs", "add", "and", "div", "floordiv", "lshift", "mod", "mul", "or", "pow", "rshift", "sub", "truediv", "xor"]
+
+    __comparators = ["lt", "le", "eq", "ne", "ge", "gt"]
+
+    __uoperators = ["abs", "index", "invert", "neg", "pos"]
+
+    __functions = ["int", "float", "complex", "round", "trunc", "floor", "ceil"]
+
+    for op in __operators:
+        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+        vars()["__r%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(second, first, operator.__dict__[op])
+
+        # Could be also done using:
+        #def _(first, second, op = _operator):
+        #    return Parameter.__operator__(first, second, operator.__dict__[op])
+        #
+        #def __(first, second, op = _operator):
+        #    return Parameter.__operator__(second, first, operator.__dict__[op])
+        #
+        #vars()[_operator] = _
+        #vars()["__r%s__" % op] = __
+
+    for op in __comparators:
+        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+
+    for op in __uoperators:
+        vars()["__%s__" % op] = lambda first, second = None, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+
+    for op in __functions:
+        vars()["__%s__" % op] = lambda first, op = "__%s__" % op: getattr(first.value, op)()
 
 
 class ConstrainedP(Parameter):
@@ -388,6 +498,54 @@ class StrP(Parameter):
 
 
 ######################
+# ParameterDict
+######################
+
+class ParameterDict(dict):
+    """Extension on ordinary dict that maintains the order of elements."""
+
+    # Auxiliary storage
+    _order = None
+
+
+    def __init__(self):
+        """Initialize the object."""
+        super(ParameterDict, self).__init__()
+
+        self._order = []
+
+
+    def __setitem__(self, name, value):
+        """Overload the original setitem to keep order."""
+
+        super(ParameterDict, self).__setitem__(name, value)
+
+        if name not in self._order:
+            self._order.append(name)
+
+
+    def __delitem__(self, name):
+        """Overload item deletion to remove it from the order."""
+
+        super(ParameterDict, self).__delitem__(name)
+
+        self._order.remove(name)
+
+
+    def items(self):
+        """Return items in a given order."""
+        return sorted(
+            super(ParameterDict, self).items(),
+            key = lambda i: self._order.index(i[0])
+        )
+
+
+    def values(self):
+        """Return values in a given order."""
+        return [ value for _, value in self.items() ]
+
+
+######################
 # ParameterReconfigure
 ######################
 
@@ -395,24 +553,42 @@ class ParameterReconfigure(object):
     """Object that provides an interface for dynamic reconfiguration."""
 
     # Internal storage of parameters
-    _parameters = {}
-    _description = ConfigDescription()
-    _update = Config()
+    _parameters = None
+    _description = None
+    _update = None
     _pub_description = None
     _pub_update = None
     _service = None
 
     def __init__(self):
+        """Initialize variables of the object.
+
+        This is a Python feature, as setting them before makes the variables
+        shared between all instances.
+
+        References:
+        https://stackoverflow.com/questions/13389325/why-do-two-class-instances-appear-to-be-sharing-the-same-data
+        https://stackoverflow.com/questions/1132941/least-astonishment-and-the-mutable-default-argument
+        """
+        self._parameters = ParameterDict()
+        self._description = ConfigDescription()
+        self._update = Config()
         pass
 
 
-    def reconfigure(self):
+    def reconfigure(self, namespace = None, node = None):
 
-        self._pub_description = rospy.Publisher("%s/parameter_descriptions" % rospy.get_name(),
+        if node is None:
+            node = autopsy.node.rospy
+
+        if namespace is None:
+            namespace = node.get_name()
+
+        self._pub_description = node.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
-        self._pub_update = rospy.Publisher("%s/parameter_updates" % rospy.get_name(),
+        self._pub_update = node.Publisher("%s/parameter_updates" % namespace,
                                                 Config, queue_size = 1, latch = True)
-        self._service = rospy.Service("%s/set_parameters" % rospy.get_name(), Reconfigure, self._reconfigureCallback)
+        self._service = node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
 
         self._redescribe()
         self._describePub()
@@ -527,7 +703,7 @@ class ParameterReconfigure(object):
         self._update = _config
 
 
-    def _reconfigureCallback(self, data):
+    def _reconfigureCallback(self, data, response = None):
         """Service callback for dynamic reconfiguration.
 
         Arguments:
@@ -541,7 +717,11 @@ class ParameterReconfigure(object):
 
         # Update parameters
         for param in data.config.bools + data.config.ints + data.config.strs + data.config.doubles:
-            self._parameters[param.name].value = param.value
+            if self._parameters[param.name].callback is None:
+                self._parameters[param.name].value = param.value
+            else:
+                self._parameters[param.name].value = self._parameters[param.name].callback(param.value)
+
             _updated.append(param.name)
 
 
@@ -550,9 +730,13 @@ class ParameterReconfigure(object):
             self._updatePub()
 
 
-        return ReconfigureResponse(
-            self._get_config(condition = lambda x: x in _updated)
-        )
+        if response is None:
+            return ReconfigureResponse(
+                self._get_config(condition = lambda x: x in _updated)
+            )
+        else:
+            response.config = self._get_config(condition = lambda x: x in _updated)
+            return response
 
 
     def __str__(self):
@@ -578,7 +762,8 @@ class ParameterServer(ParameterReconfigure):
 
 
     def __init__(self):
-        pass
+        """Initialize the object by calling the super init."""
+        super(ParameterServer, self).__init__()
 
 
     def __hasattr__(self, name):
@@ -639,12 +824,12 @@ class ParameterServer(ParameterReconfigure):
             else:
                 kwargs = dict()
 
-            if isinstance(value, int):
+            if isinstance(value, bool):
+                self._parameters[name] = BoolP(name, value, **kwargs)
+            elif isinstance(value, int):
                 self._parameters[name] = IntP(name, value, **kwargs)
             elif isinstance(value, float):
                 self._parameters[name] = DoubleP(name, value, **kwargs)
-            elif isinstance(value, bool):
-                self._parameters[name] = BoolP(name, value, **kwargs)
             elif isinstance(value, str):
                 self._parameters[name] = StrP(name, value, **kwargs)
             else:
