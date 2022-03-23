@@ -840,8 +840,14 @@ class ParameterServer(ParameterReconfigure):
         """Updates the parameters according to the passed dictionary.
 
         Arguments:
-        parameters -- new values of the parameters, dict(str, any)
+        parameters -- new values of the parameters, dict(str, any) or list(tuple(str, any))
         """
 
-        for param, value in parameters.items():
-            self.__setattr__(param, value)
+        if isinstance(parameters, dict):
+            for param, value in parameters.items():
+                self.__setattr__(param, value)
+        elif isinstance(parameters, list):
+            for param, value in parameters:
+                self.__setattr__(param, value)
+        else:
+            raise NotImplementedError("ParameterServer.update() is not supported for type '%s'." % type(parameters))
