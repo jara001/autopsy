@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `reconfigure`:
   - `update()` now supports `list(tuple(str, any))` for ordered addition of multiple parameters.
 
+### Updated
+- Readme now contains details about `update()`.
+
 ## 0.5.0 - 2022-03-22
 ### Added
 - `reconfigure`:
