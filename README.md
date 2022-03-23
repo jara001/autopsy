@@ -111,6 +111,23 @@ P.anotherparam = {'default': 5.2, 'min': 2, 'max': 6, 'description': 'I am just 
 P.smax = ["Speed_max", float, 0, "Level-1 speed", 0.158483034, 0, 0.3]
 ```
 
+Parameters may be also defined at once using function `P.update(PARAMETERS)`. There are two ways to use it:
+
+- Using dictionary (parameters are ordered randomly):
+    ```python
+    PARAMETERS = {
+        "something": 4,
+        "anotherparam": {'default': 5.2, 'min': 2, 'max': 6, 'description': 'I am just a float.'},
+    }
+    ```
+- Using list of tuples (parameters are ordered):
+    ```python
+    PARAMETERS = [
+        ("something", 4),
+        ("anotherparam", {'default': 5.2, 'min': 2, 'max': 6, 'description': 'I am just a float.'}),
+    ]
+    ```
+
 ##### Enumerated values
 
 Example:

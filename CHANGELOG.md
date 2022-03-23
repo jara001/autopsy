@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.5.1 - 2022-03-23
+### Added
+- `reconfigure`:
+  - `update()` now supports `list(tuple(str, any))` for ordered addition of multiple parameters.
+
+### Updated
+- Readme now contains details about `update()`.
+
 ## 0.5.0 - 2022-03-22
 ### Added
 - `reconfigure`:
