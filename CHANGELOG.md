@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - Implementation of `__contains__` to support `if ... in P`.
   - `update()` now takes optional argument `only_existing` (def. `False`) to only update existing parameters.
   - (ROS1 only) Parameters and their values are exposed to the ROS Parameter Server.
+  - `link(ConstrainedP, ConstrainedP)` to link two parameters together. First cannot be larger then the second one.
 
 ## 0.5.1 - 2022-03-23
 ### Added

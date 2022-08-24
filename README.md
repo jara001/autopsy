@@ -185,6 +185,23 @@ P.reconfigure()
 _Note: Callback function receives new value of the parameter, and is required to return the true new value. It is then filled inside the parameter and announced to the reconfigure GUI._
 
 
+##### Linked variables
+
+Parameters of type `ConstrainedP` can be "linked" together. When done, first parameter cannot exceed the value of the second parameter and vice versa. Linking is performed after defining the parameters using `P.link()`.
+
+Example:
+```python
+P = ParameterServer()
+
+P.range_min = 2.0
+P.range_max = 3.0
+
+P.link(P.range_min, P.range_max)
+
+# P.range_min and P.range_max are now linked. Should min be over max, it is set to max, and vice versa.
+```
+
+
 #### Reconfiguration itself
 
 ```python
