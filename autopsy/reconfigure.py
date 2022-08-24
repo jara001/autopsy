@@ -591,6 +591,7 @@ class ParameterReconfigure(object):
     _pub_description = None
     _pub_update = None
     _service = None
+    _node = None
 
     def __init__(self):
         """Initialize variables of the object.
@@ -611,16 +612,18 @@ class ParameterReconfigure(object):
     def reconfigure(self, namespace = None, node = None):
 
         if node is None:
-            node = autopsy.node.rospy
+            self._node = autopsy.node.rospy
+        else:
+            self._node = node
 
         if namespace is None:
-            namespace = node.get_name()
+            namespace = self._node.get_name()
 
-        self._pub_description = node.Publisher("%s/parameter_descriptions" % namespace,
+        self._pub_description = self._node.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
-        self._pub_update = node.Publisher("%s/parameter_updates" % namespace,
+        self._pub_update = self._node.Publisher("%s/parameter_updates" % namespace,
                                                 Config, queue_size = 1, latch = True)
-        self._service = node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
+        self._service = self._node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
 
         self._redescribe()
         self._describePub()
