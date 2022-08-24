@@ -592,6 +592,7 @@ class ParameterReconfigure(object):
     _pub_update = None
     _service = None
     _node = None
+    _expose_parameters = False
 
     def __init__(self):
         """Initialize variables of the object.
@@ -624,6 +625,12 @@ class ParameterReconfigure(object):
         self._pub_update = self._node.Publisher("%s/parameter_updates" % namespace,
                                                 Config, queue_size = 1, latch = True)
         self._service = self._node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
+
+        # Expose parameters to the ROS Parameter Server (ROS1 only)
+        if hasattr(self._node, "set_param"):
+            self._expose_parameters = True
+            for _name, _param in self._parameters.items():
+                self._node.set_param("~%s" % _name, _param.value)
 
         self._redescribe()
         self._describePub()
@@ -756,6 +763,10 @@ class ParameterReconfigure(object):
                 self._parameters[param.name].value = param.value
             else:
                 self._parameters[param.name].value = self._parameters[param.name].callback(param.value)
+
+            # Expose the update to the ROS Parameter Server (ROS1 only)
+            if self._expose_parameters:
+                self._node.set_param("~%s" % param.name, param.value)
 
             _updated.append(param.name)
 
