@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- `reconfigure`:
+  - Parameters can be now used within conditions.
+
 ## 0.5.1 - 2022-03-23
 ### Added
 - `reconfigure`:

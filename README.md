@@ -80,7 +80,7 @@ Upon assigning a value to parameter, an internal object is created.
 
 _Note: The `.value` is used only when you want to store it somewhere else._
 
-_Note: Features `is`, `not` and `bool()` are not currently available here._
+_Note: Feature `is` are not currently available here._
 
 Example:
 ```python
