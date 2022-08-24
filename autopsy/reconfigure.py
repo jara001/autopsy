@@ -470,11 +470,29 @@ class IntP(ConstrainedP):
         super(IntP, self).__init__(name, default, int, *args, **kwargs)
 
 
+    def __nonzero__(self):
+        """Used for evaluating conditions (Py2)."""
+        return self.value != 0
+
+    def __bool__(self):
+        """Used for evaluating conditions (Py3)."""
+        return self.value != 0
+
+
 class DoubleP(ConstrainedP):
     """Parameter of a type float/double."""
 
     def __init__(self, name, default, *args, **kwargs):
         super(DoubleP, self).__init__(name, default, float, *args, **kwargs)
+
+
+    def __nonzero__(self):
+        """Used for evaluating conditions (Py2)."""
+        return self.value != 0.0
+
+    def __bool__(self):
+        """Used for evaluating conditions (Py3)."""
+        return self.value != 0.0
 
 
 class BoolP(Parameter):
@@ -487,6 +505,15 @@ class BoolP(Parameter):
         super(BoolP, self).__init__(name, default, bool, *args, **kwargs)
 
 
+    def __nonzero__(self):
+        """Used for evaluating conditions (Py2)."""
+        return self.value
+
+    def __bool__(self):
+        """Used for evaluating conditions (Py3)."""
+        return self.value
+
+
 class StrP(Parameter):
     """Parameter of a type string."""
 
@@ -495,6 +522,11 @@ class StrP(Parameter):
         self.max = None
 
         super(StrP, self).__init__(name, default, str, *args, **kwargs)
+
+
+    def __len__(self):
+        """Size of the string. Also used for evaluating conditions."""
+        return len(self.value)
 
 
 ######################
