@@ -877,18 +877,21 @@ class ParameterServer(ParameterReconfigure):
         return name in self._parameters
 
 
-    def update(self, parameters):
+    def update(self, parameters, only_existing = False):
         """Updates the parameters according to the passed dictionary.
 
         Arguments:
         parameters -- new values of the parameters, dict(str, any) or list(tuple(str, any))
+        only_existing -- when True only update values, do not add new parameters, bool, default False
         """
 
         if isinstance(parameters, dict):
             for param, value in parameters.items():
-                self.__setattr__(param, value)
+                if not only_existing or param in self:
+                    self.__setattr__(param, value)
         elif isinstance(parameters, list):
             for param, value in parameters:
-                self.__setattr__(param, value)
+                if not only_existing or param in self:
+                    self.__setattr__(param, value)
         else:
             raise NotImplementedError("ParameterServer.update() is not supported for type '%s'." % type(parameters))

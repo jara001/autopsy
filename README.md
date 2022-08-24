@@ -203,6 +203,8 @@ P.reconfigure()
 ```
 _Note: Passing a string to `P.reconfigure()` changes the namespace of the ParameterServer in ROS._
 
+_Note: From `>0.5.1` an additional bool can be passed to `P.update()` to only update existing parameters._
+
 
 ### Compatibility
 
