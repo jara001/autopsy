@@ -868,6 +868,15 @@ class ParameterServer(ParameterReconfigure):
                 raise TypeError("Unable to create a parameter of type '%s'." % type(value))
 
 
+    def __contains__(self, name):
+        """Check whether a parameter name exists. Used for 'if name in P'.
+
+        Arguments:
+        name -- name of the parameter, str
+        """
+        return name in self._parameters
+
+
     def update(self, parameters):
         """Updates the parameters according to the passed dictionary.
 

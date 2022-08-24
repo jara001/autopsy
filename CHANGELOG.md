@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 - `reconfigure`:
   - Parameters can be now used within conditions.
+  - Implementation of `__contains__` to support `if ... in P`.
 
 ## 0.5.1 - 2022-03-23
 ### Added
