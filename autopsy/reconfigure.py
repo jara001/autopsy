@@ -387,6 +387,10 @@ class Parameter(object):
 class ConstrainedP(Parameter):
     """Parameter that is constrained by min and max values."""
 
+    # Constrain the value even further by looking at a linked variable.
+    _link = None
+
+
     def __init__(self, name, default, type, min = -2147483647, max = 2147483647, **kwargs):
         """Initialize a constrained parameter object.
 
@@ -451,6 +455,9 @@ class ConstrainedP(Parameter):
         if not self.min <= new_value <= self.max:
             raise ValueError("Value '%s' is not in %s <= value <= %s range." % (formatNumber(new_value), formatNumber(self.min), formatNumber(self.max)))
 
+        if self._link is not None:
+            new_value = self._link(new_value)
+
         Parameter.value.fset(self, new_value)
 
 
@@ -470,11 +477,29 @@ class IntP(ConstrainedP):
         super(IntP, self).__init__(name, default, int, *args, **kwargs)
 
 
+    def __nonzero__(self):
+        """Used for evaluating conditions (Py2)."""
+        return self.value != 0
+
+    def __bool__(self):
+        """Used for evaluating conditions (Py3)."""
+        return self.value != 0
+
+
 class DoubleP(ConstrainedP):
     """Parameter of a type float/double."""
 
     def __init__(self, name, default, *args, **kwargs):
         super(DoubleP, self).__init__(name, default, float, *args, **kwargs)
+
+
+    def __nonzero__(self):
+        """Used for evaluating conditions (Py2)."""
+        return self.value != 0.0
+
+    def __bool__(self):
+        """Used for evaluating conditions (Py3)."""
+        return self.value != 0.0
 
 
 class BoolP(Parameter):
@@ -487,6 +512,15 @@ class BoolP(Parameter):
         super(BoolP, self).__init__(name, default, bool, *args, **kwargs)
 
 
+    def __nonzero__(self):
+        """Used for evaluating conditions (Py2)."""
+        return self.value
+
+    def __bool__(self):
+        """Used for evaluating conditions (Py3)."""
+        return self.value
+
+
 class StrP(Parameter):
     """Parameter of a type string."""
 
@@ -495,6 +529,11 @@ class StrP(Parameter):
         self.max = None
 
         super(StrP, self).__init__(name, default, str, *args, **kwargs)
+
+
+    def __len__(self):
+        """Size of the string. Also used for evaluating conditions."""
+        return len(self.value)
 
 
 ######################
@@ -559,6 +598,8 @@ class ParameterReconfigure(object):
     _pub_description = None
     _pub_update = None
     _service = None
+    _node = None
+    _expose_parameters = False
 
     def __init__(self):
         """Initialize variables of the object.
@@ -579,16 +620,24 @@ class ParameterReconfigure(object):
     def reconfigure(self, namespace = None, node = None):
 
         if node is None:
-            node = autopsy.node.rospy
+            self._node = autopsy.node.rospy
+        else:
+            self._node = node
 
         if namespace is None:
-            namespace = node.get_name()
+            namespace = self._node.get_name()
 
-        self._pub_description = node.Publisher("%s/parameter_descriptions" % namespace,
+        self._pub_description = self._node.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
-        self._pub_update = node.Publisher("%s/parameter_updates" % namespace,
+        self._pub_update = self._node.Publisher("%s/parameter_updates" % namespace,
                                                 Config, queue_size = 1, latch = True)
-        self._service = node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
+        self._service = self._node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
+
+        # Expose parameters to the ROS Parameter Server (ROS1 only)
+        if hasattr(self._node, "set_param"):
+            self._expose_parameters = True
+            for _name, _param in self._parameters.items():
+                self._node.set_param("~%s" % _name, _param.value)
 
         self._redescribe()
         self._describePub()
@@ -690,7 +739,9 @@ class ParameterReconfigure(object):
     def _reupdate(self):
         """Creates an update description of the parameters."""
 
-        _config = self._get_config(condition = lambda x: x.value != x.default)
+        # Note: Condition was removed because of the linked variables, as when
+        # the value should be moved to its default state, nothing would happen.
+        _config = self._get_config()#condition = lambda x: x.value != x.default)
         _config.groups = [
             GroupState(
                 name = "Default",
@@ -721,6 +772,10 @@ class ParameterReconfigure(object):
                 self._parameters[param.name].value = param.value
             else:
                 self._parameters[param.name].value = self._parameters[param.name].callback(param.value)
+
+            # Expose the update to the ROS Parameter Server (ROS1 only)
+            if self._expose_parameters:
+                self._node.set_param("~%s" % param.name, param.value)
 
             _updated.append(param.name)
 
@@ -836,18 +891,46 @@ class ParameterServer(ParameterReconfigure):
                 raise TypeError("Unable to create a parameter of type '%s'." % type(value))
 
 
-    def update(self, parameters):
+    def __contains__(self, name):
+        """Check whether a parameter name exists. Used for 'if name in P'.
+
+        Arguments:
+        name -- name of the parameter, str
+        """
+        return name in self._parameters
+
+
+    def link(self, param1, param2):
+        """Links two constrained parameters together so one cannot be more then the other.
+
+        Arguments:
+        name1 -- name of the first ConstrainedP parameter, str
+        name2 -- name of the second ConstrainedP parameter, str
+        """
+
+        for param in (param1, param2):
+            if not isinstance(param, ConstrainedP):
+                raise TypeError("Parameter '%s' is of a type '%s'." % (param.name, type(param)))
+
+        param1._link = lambda x: min(x, param2.value)
+        param2._link = lambda x: max(x, param1.value)
+
+
+    def update(self, parameters, only_existing = False):
         """Updates the parameters according to the passed dictionary.
 
         Arguments:
         parameters -- new values of the parameters, dict(str, any) or list(tuple(str, any))
+        only_existing -- when True only update values, do not add new parameters, bool, default False
         """
 
         if isinstance(parameters, dict):
             for param, value in parameters.items():
-                self.__setattr__(param, value)
+                if not only_existing or param in self:
+                    self.__setattr__(param, value)
         elif isinstance(parameters, list):
             for param, value in parameters:
-                self.__setattr__(param, value)
+                if not only_existing or param in self:
+                    self.__setattr__(param, value)
         else:
             raise NotImplementedError("ParameterServer.update() is not supported for type '%s'." % type(parameters))
