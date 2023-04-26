@@ -189,9 +189,6 @@ class Node(NodeI):
         """
 
         if ROS_VERSION == 1:
-            if hasattr(rospy, name):
-                print ("[WARNING] Unsupported attribute 'rospy.%s'." % name)
-
             return getattr(rospy, name)
         else:
             # Raise AttributeError
@@ -204,9 +201,4 @@ class Node(NodeI):
         Arguments:
         name -- name of the attribute / method
         """
-
-        if ROS_VERSION == 2:
-            if not hasattr(NodeR1, name):
-                print ("[WARNING] Unsupported attribute 'self.%s'." % name)
-
         return super(Node, self).__getattribute__(name)
