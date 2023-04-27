@@ -115,12 +115,25 @@ from enum import Enum, EnumMeta
 
 
 # Message types
-from dynamic_reconfigure.msg import ConfigDescription, Config, Group, ParamDescription, BoolParameter, IntParameter, StrParameter, DoubleParameter, GroupState
-from dynamic_reconfigure.srv import Reconfigure
-
 if autopsy.node.ROS_VERSION == 1:
+    from dynamic_reconfigure.msg import ConfigDescription, Config, Group, ParamDescription, BoolParameter, IntParameter, StrParameter, DoubleParameter, GroupState
+    from dynamic_reconfigure.srv import Reconfigure
+
     # ROS1 compiles the messages into two, in contrast to ROS2.
     from dynamic_reconfigure.srv import ReconfigureResponse
+
+if autopsy.node.ROS_VERSION == 2:
+    # ROS2 uses different messages for rqt_reconfigure.
+    from rcl_interfaces.srv import SetParameters
+    from rcl_interfaces.msg import ParameterType, ParameterDescriptor, SetParametersResult, Parameter
+
+    # Translation of types to ParameterType
+    PTypes = {
+        bool: ParameterType.PARAMETER_BOOL,
+        int: ParameterType.PARAMETER_INTEGER,
+        float: ParameterType.PARAMETER_DOUBLE,
+        str: ParameterType.PARAMETER_STRING,
+    }
 
 
 # https://stackoverflow.com/questions/2440692/formatting-floats-without-trailing-zeros
@@ -612,8 +625,8 @@ class ParameterReconfigure(object):
         https://stackoverflow.com/questions/1132941/least-astonishment-and-the-mutable-default-argument
         """
         self._parameters = ParameterDict()
-        self._description = ConfigDescription()
-        self._update = Config()
+        self._description = None
+        self._update = None
         pass
 
 
@@ -623,6 +636,19 @@ class ParameterReconfigure(object):
             self._node = autopsy.node.rospy
         else:
             self._node = node
+
+        # ROS2: Use current Parameter API.
+        if autopsy.node.ROS_VERSION == 2:
+            self._node.add_on_set_parameters_callback(self._reconfigure2Callback)
+
+            self._redescribe2()
+
+            self._node.declare_parameters(
+                namespace = namespace,
+                parameters = self._description,
+            )
+
+            return
 
         if namespace is None:
             namespace = self._node.get_name()
@@ -736,6 +762,21 @@ class ParameterReconfigure(object):
         )
 
 
+    def _redescribe2(self):
+        """Creates a description of the parameters for ROS2."""
+
+        self._description = [
+            (
+                _name,
+                _param.default,
+                ParameterDescriptor(
+                    type = PTypes[_param.type],
+                    description = _param.description,
+                )
+            ) for _name, _param in self._parameters.items()
+        ]
+
+
     def _reupdate(self):
         """Creates an update description of the parameters."""
 
@@ -752,6 +793,48 @@ class ParameterReconfigure(object):
         ]
 
         self._update = _config
+
+
+    def _reconfigure2Callback(self, parameters):
+        """Service callback for ROS2 dynamic reconfiguration.
+
+        Arguments:
+        parameters -- parameters to be set, list of Parameter
+
+        Returns:
+        result -- feedback whether the update was properly done, SetParametersResult
+        """
+
+        for param in parameters:
+            _old_value = self._parameters[param.name].value
+
+            # Try to set the new value
+            try:
+                # a) Try to use the callback
+                if self._parameters[param.name].callback is not None:
+                    # In ROS2 this could raise an Exception. If so, it is caught right away.
+                    _new_value = self._parameters[param.name].callback(param.value)
+
+                    # b) Check whether the value changed.
+                    if _new_value != param.value:
+                        self._parameters[param.name].callback(_old_value)
+                        raise ValueError("Value of parameter '%s' changed after callback." % (param.name))
+
+                # c) Try to store the value
+                self._parameters[param.name].value = param.value
+
+                # d) Check whether the value changed.
+                if self._parameters[param.name].value != param.value:
+                    self._parameters[param.name].value = _old_value
+                    raise ValueError("Value of parameter '%s' changed to different value. Maybe the variable is linked?" % (param.name))
+
+            except Exception as e:
+                return SetParametersResult(
+                    successful = False,
+                    reason = str(e),
+                )
+
+        return SetParametersResult(successful = True)
 
 
     def _reconfigureCallback(self, data, response = None):

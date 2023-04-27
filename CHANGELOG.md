@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.7.0 - 2023-04-27
+### Added
+- `reconfigure`:
+  - ROS2 is now supported.
+
+### Removed
+- `uninode`:
+  - Node no longer produces warnings when using unimplmented functions.
+
 ## 0.6.0 - 2022-08-24
 ### Added
 - `reconfigure`:
