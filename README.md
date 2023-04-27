@@ -256,15 +256,22 @@ To make your code runnable on `<= 0.4.0` stick to these rules:
 
 #### ROS 2
 
-Current implementation is not compatible with ROS2. Some parts are usable, however the reconfiguration part is not perfect. At least, the definition of the parameters and accessing their value seems working. Pull requests are welcome!
-
-Since it requires `dynamic_reconfigure` messages, you can download them [here](https://github.com/jara001/dynamic_reconfigure).
-
-If you want to test the reconfiguration, you have to pass the Node instance inside `node` argument:
+To use reconfiguration utility in ROS2, you have to pass the Node instance inside `node` argument:
 
 ```python
 P.reconfigure(node = node)
 ```
+
+In the current implementation following features are not supported:
+- enums,
+- linked variables.
+
+Because of the limitations of ROS2 API it is most likely that they will be never supported.
+
+As from the ROS2 Parameter API side these features are currently not implemented:
+- IntegerRange,
+- FloatingPointRange,
+- Arrays.
 
 
 ### Full example
