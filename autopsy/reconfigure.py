@@ -668,6 +668,8 @@ class ParameterReconfigure(object):
 
         if namespace is None:
             namespace = self._node.get_name()
+        else:
+            namespace = "%s/%s" % (self._node.get_name(), namespace)
 
         self._namespace = namespace
 
