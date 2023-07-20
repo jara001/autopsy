@@ -321,13 +321,21 @@ Universal node (or uninode) serves as a compatibility layer for a ROS node to be
 
 |           ROS 1           |          uninode          |           ROS 2           |
 | ------------------------- | ------------------------- | ------------------------- |
-| [rospy.init_node](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#init_node)                          | [self.\_\_init\_\_](autopsy/node.py#L76)          | [self.\_\_init\_\_](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node)                                 |
+| [rospy.init_node](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#init_node)                          | [self.\_\_init\_\_](autopsy/node.py#L116)         | [self.\_\_init\_\_](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node)                                 |
 | [rospy.get_name](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#get_name)                            | self.get_name                                     | [self.get_name](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_name)                            |
-| [rospy.Publisher](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Publisher-class.html)                    | [self.Publisher](autopsy/node.py#L85)+            | [self.create_publisher](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_publisher)            |
-| [rospy.Subscriber](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Subscriber-class.html)                  | [self.Subscriber](autopsy/node.py#L99)+           | [self.create_subscription](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_subscription)      |
-| [rospy.Rate](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Rate-class.html)                               | [self.Rate](autopsy/node.py#L114)+                | [self.create_rate](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_rate)                      |
-| [rospy.Timer](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Timer-class.html)                             | [self.Timer](autopsy/node.py#L126)+               | [self.create_timer](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_timer)                    |
-| [rospy.Service](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html)           | [self.Service](autopsy/node.py#L139)+             | [self.create_service](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_service)                |
+| [rospy.get_time](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#get_time)                            | [self.get_time](autopsy/node.py#L217)+            | using [self.get_clock()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_clock)                  |
+| [rospy.Publisher](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Publisher-class.html)                    | [self.Publisher](autopsy/node.py#L128)+           | [self.create_publisher](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_publisher)            |
+| [rospy.Subscriber](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Subscriber-class.html)                  | [self.Subscriber](autopsy/node.py#L142)+          | [self.create_subscription](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_subscription)      |
+| [rospy.Rate](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Rate-class.html)                               | [self.Rate](autopsy/node.py#L157)+                | [self.create_rate](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_rate)                      |
+| [rospy.Timer](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Timer-class.html)                             | [self.Timer](autopsy/node.py#L169)+               | [self.create_timer](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_timer)                    |
+| [rospy.Service](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html)           | [self.Service](autopsy/node.py#L182)+             | [self.create_service](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_service)                |
+| [rospy.Time.now](http://docs.ros.org/en/kinetic/api/rospy/html/rospy.rostime.Time-class.html#now)                     | [self.Time.now](autopsy/node.py#L125)+            | [self.get_clock()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_clock).now()                  |
+| [rospy.logdebug](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#logdebug)                            | [self.logdebug](autopsy/node.py#L229)+            | [self.get_logger()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_logger).debug                |
+| [rospy.loginfo](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#loginfo)                              | [self.loginfo](autopsy/node.py#L234)+             | [self.get_logger()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_logger).info                 |
+| [rospy.logwarn](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#logwarn)                              | [self.logwarn](autopsy/node.py#L239)+             | [self.get_logger()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_logger).warn                 |
+| [rospy.logerr](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#logerr)                                | [self.logerr](autopsy/node.py#L244)+              | [self.get_logger()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_logger).error                |
+| rospy.logerror                                                                                                        | [self.logerror](autopsy/node.py#L249)+            | [self.get_logger()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_logger).error                |
+| [rospy.logfatal](http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html#logfatal)                            | [self.logfatal](autopsy/node.py#L252)+            | [self.get_logger()](https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.get_logger).fatal                |
 
 
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
@@ -345,6 +353,8 @@ Note: Lines with '+' denote that the same function as for ROS2 can be used for u
     - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
       in ROS1). Therefore, the function has to be created as:
       `def callback(self, *args, **kwargs)`
+    - There is no direct equivalent for `rospy.get_time()` in ROS2. However, it can be
+      obtained using `self.get_clock().now().nanoseconds * (10 ** 9)`.
 - Common
     - Services are handled slightly differently in both ROS versions. At first, service
       message is compiled into two in ROS1. In ROS2 there is only one message type.
