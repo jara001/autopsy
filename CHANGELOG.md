@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- `reconfigure`:
+  - Namespace is now used for recognizing whether the parameter being updated belongs to the current ParameterList. (This is required for ROS2.)
+- `uninode`:
+  - Functions for obtaining current ROS time: `get_time()`, `Time.now()`, and `get_clock().now()`.
+  - Logging support using `log*` and `get_logger().*` functions.
+
+### Changed
+- `reconfigure`:
+  - ROS1: Node name is automatically prepended to the namespace.
+
 ## 0.7.0 - 2023-04-27
 ### Added
 - `reconfigure`:
