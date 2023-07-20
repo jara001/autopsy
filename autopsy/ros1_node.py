@@ -12,6 +12,7 @@ except:
     pass
 
 from .ros1_qos import DurabilityPolicy
+from .ros1_clock import Clock
 
 
 ######################
@@ -122,3 +123,8 @@ class Node(object):
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_service
         """
         return rospy.Service(name = srv_name, service_class = srv_type, handler = callback)
+
+
+    def get_clock(self):
+        """Get clock used by the node."""
+        return Clock()

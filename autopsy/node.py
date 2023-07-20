@@ -15,11 +15,13 @@ Relations:
 |-----------------------------------------------------------------------------------|
 | rospy.init_node           |                     self.__init__                     |
 | rospy.get_name            |                     self.get_name                     |
+| rospy.get_time            | self.get_time+            | using self.get_clock()    |
 | rospy.Publisher           | self.Publisher+           | self.create_publisher     |
 | rospy.Subscriber          | self.Subscriber+          | self.create_subscription  |
 | rospy.Rate                | self.Rate+                | self.create_rate          |
 | rospy.Timer               | self.Timer+               | self.create_timer         |
 | rospy.Service             | self.Service+             | self.create_service       |
+| rospy.Time.now            | self.Time.now+            | self.get_clock().now()    |
 -------------------------------------------------------------------------------------
 
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
@@ -35,6 +37,8 @@ Differences:
     - Timer in ROS2 does not take any arguments (in contrast to the 'rospy.TimerEvent
       in ROS1). Therefore, the function has to be created as:
       `def callback(self, *args, **kwargs)`
+    - There is no direct equivalent for `rospy.get_time()` in ROS2. However, it can be
+      obtained using `self.get_clock().now().nanoseconds * (10 ** 9)`.
 - Common
     - Services are handled slightly differently in both ROS versions. At first, service
       message is compiled into two in ROS1. In ROS2 there is only one message type.
@@ -81,6 +85,7 @@ try:
     import rospy
 
     from .ros1_node import Node as NodeI
+    from .ros1_time import Time as TimeI
     from .ros1_qos import *
 
     ROS_VERSION = 1
@@ -90,6 +95,7 @@ except:
         from rclpy.qos import *
 
         from .ros1_node import Node as NodeR1
+        from .ros1_time import Time as TimeR1
 
         ROS_VERSION = 2
     except:
@@ -179,6 +185,42 @@ class Node(NodeI):
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html
         """
         return super(Node, self).create_service(srv_type = service_class, srv_name = name, callback = handler)
+
+
+    def Time(self, secs = 0, nsecs = 0):
+        """Create a Time object.
+
+        Arguments:
+        secs -- seconds since epoch, int
+        nsecs -- nanoseconds since seconds (since epoch), int
+
+        Reference:
+        http://docs.ros.org/en/kinetic/api/rospy/html/rospy.rostime.Time-class.html
+
+        Note:
+        There is one really big implementation difference between ROS1 and ROS2.
+        In ROS1, time is stored separately in secs and nsecs, and it behaves as follows:
+            1) If secs is float, raise an Exception if nsecs is not zero.
+            2) If nsecs is larger than 1e9, reduce it under 1e9 while increasing secs.
+            3) If nsecs is lower than 0, reduce secs to make it positive.
+        In ROS2, class does not care. Time is stored in nanoseconds.
+        """
+        return TimeI(secs, nsecs)
+
+    # Workaround for Time.now()
+    self.Time.now = super(Node, self).get_clock().now
+
+
+    def get_time(self):
+        """Get the current time as float secs.
+
+        Returns:
+        time -- float
+
+        Reference:
+        http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html
+        """
+        return super(Node, self).get_clock().now().nanoseconds * (10 ** 9)
 
 
     def __getattr__(self, name):
