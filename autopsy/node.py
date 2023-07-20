@@ -94,9 +94,6 @@ except:
         from rclpy.node import Node as NodeI
         from rclpy.qos import *
 
-        from .ros1_node import Node as NodeR1
-        from .ros1_time import Time as TimeR1
-
         ROS_VERSION = 2
     except:
         print ("No ROS package detected.")
