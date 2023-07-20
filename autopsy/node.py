@@ -22,6 +22,12 @@ Relations:
 | rospy.Timer               | self.Timer+               | self.create_timer         |
 | rospy.Service             | self.Service+             | self.create_service       |
 | rospy.Time.now            | self.Time.now+            | self.get_clock().now()    |
+| rospy.logdebug            | self.logdebug+            | self.get_logger().debug   |
+| rospy.loginfo             | self.loginfo+             | self.get_logger().info    |
+| rospy.logwarn             | self.logwarn+             | self.get_logger().warning |
+| rospy.logerr              | self.logerr+              | self.get_logger().error   |
+| rospy.logerror            | self.logerror+            | self.get_logger().error   |
+| rospy.logfatal            | self.logfatal+            | self.get_logger().fatal   |
 -------------------------------------------------------------------------------------
 
 Note: Lines with '+' denote that the same function as for ROS2 can be used for uninode.
@@ -218,6 +224,34 @@ class Node(NodeI):
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html
         """
         return super(Node, self).get_clock().now().nanoseconds * (10 ** 9)
+
+
+    def logdebug(self, msg, *args, **kwargs):
+        """Log a message with severity 'DEBUG'."""
+        return super(Node, self).get_logger().debug(str(msg) % args, **kwargs)
+
+
+    def loginfo(self, msg, *args, **kwargs):
+        """Log a message with severity 'INFO'."""
+        return super(Node, self).get_logger().info(str(msg) % args, **kwargs)
+
+
+    def logwarn(self, msg, *args, **kwargs):
+        """Log a message with severity 'WARN'."""
+        return super(Node, self).get_logger().warning(str(msg) % args, **kwargs)
+
+
+    def logerr(self, msg, *args, **kwargs):
+        """Log a message with severity 'ERROR'."""
+        return super(Node, self).get_logger().error(str(msg) % args, **kwargs)
+
+
+    logerror = logerr
+
+
+    def logfatal(self, msg, *args, **kwargs):
+        """Log a message with severity 'FATAL'."""
+        return super(Node, self).get_logger().fatal(str(msg) % args, **kwargs)
 
 
     def __getattr__(self, name):

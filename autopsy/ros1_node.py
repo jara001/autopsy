@@ -13,6 +13,7 @@ except:
 
 from .ros1_qos import DurabilityPolicy
 from .ros1_clock import Clock
+from .ros1_logger import Logger
 
 
 ######################
@@ -128,3 +129,8 @@ class Node(object):
     def get_clock(self):
         """Get clock used by the node."""
         return Clock()
+
+
+    def get_logger(self):
+        """Mimic a logger object."""
+        return Logger()
