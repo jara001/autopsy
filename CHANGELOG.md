@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 - `reconfigure`:
-  - ROS1: Node name is automatically prepended to the namespace.
+  - [BREAKING CHANGE] ROS1: Node name is automatically prepended to the namespace.
 
 ## 0.7.0 - 2023-04-27
 ### Added
