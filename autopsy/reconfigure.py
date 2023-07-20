@@ -329,6 +329,16 @@ class Parameter(object):
         self.__callback = new_value
 
 
+    @property
+    def namespace(self):
+        """Namespace that this parameter belongs to. (Required for ROS2.)"""
+        return self.__namespace
+
+    @namespace.setter
+    def namespace(self, new_value):
+        self.__namespace = new_value
+
+
     def __str__(self):
         """Formats the parameter into a string.
 
@@ -613,6 +623,7 @@ class ParameterReconfigure(object):
     _service = None
     _node = None
     _expose_parameters = False
+    _namespace = None
 
     def __init__(self):
         """Initialize variables of the object.
@@ -639,9 +650,14 @@ class ParameterReconfigure(object):
 
         # ROS2: Use current Parameter API.
         if autopsy.node.ROS_VERSION == 2:
+            for p in self._parameters:
+                p._namespace = namespace
+
             self._node.add_on_set_parameters_callback(self._reconfigure2Callback)
 
             self._redescribe2()
+
+            self._namespace = namespace
 
             self._node.declare_parameters(
                 namespace = namespace,
@@ -652,6 +668,8 @@ class ParameterReconfigure(object):
 
         if namespace is None:
             namespace = self._node.get_name()
+
+        self._namespace = namespace
 
         self._pub_description = self._node.Publisher("%s/parameter_descriptions" % namespace,
                                                 ConfigDescription, queue_size = 1, latch = True)
@@ -795,7 +813,7 @@ class ParameterReconfigure(object):
         self._update = _config
 
 
-    def _reconfigure2Callback(self, parameters):
+    def _reconfigure2Callback(self, parameters, namespace = None):
         """Service callback for ROS2 dynamic reconfiguration.
 
         Arguments:
@@ -806,27 +824,35 @@ class ParameterReconfigure(object):
         """
 
         for param in parameters:
-            _old_value = self._parameters[param.name].value
+            # Filter out namespace (ROS2)
+            _param_name = param.name.split('.')[-1]
+
+            # For some reason, callback is invoked on every namespace in the node.
+            # Skip if it is not present in the ParameterList, or not in this namespace.
+            if _param_name not in self._parameters or self._parameters[_param_name]._namespace != self._namespace:
+                continue
+
+            _old_value = self._parameters[_param_name].value
 
             # Try to set the new value
             try:
                 # a) Try to use the callback
-                if self._parameters[param.name].callback is not None:
+                if self._parameters[_param_name].callback is not None:
                     # In ROS2 this could raise an Exception. If so, it is caught right away.
-                    _new_value = self._parameters[param.name].callback(param.value)
+                    _new_value = self._parameters[_param_name].callback(param.value)
 
                     # b) Check whether the value changed.
                     if _new_value != param.value:
-                        self._parameters[param.name].callback(_old_value)
-                        raise ValueError("Value of parameter '%s' changed after callback." % (param.name))
+                        self._parameters[_param_name].callback(_old_value)
+                        raise ValueError("Value of parameter '%s' changed after callback." % (_param_name))
 
                 # c) Try to store the value
-                self._parameters[param.name].value = param.value
+                self._parameters[_param_name].value = param.value
 
                 # d) Check whether the value changed.
-                if self._parameters[param.name].value != param.value:
-                    self._parameters[param.name].value = _old_value
-                    raise ValueError("Value of parameter '%s' changed to different value. Maybe the variable is linked?" % (param.name))
+                if self._parameters[_param_name].value != param.value:
+                    self._parameters[_param_name].value = _old_value
+                    raise ValueError("Value of parameter '%s' changed to different value. Maybe the variable is linked?" % (_param_name))
 
             except Exception as e:
                 return SetParametersResult(
