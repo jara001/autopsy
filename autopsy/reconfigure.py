@@ -650,7 +650,7 @@ class ParameterReconfigure(object):
 
         # ROS2: Use current Parameter API.
         if autopsy.node.ROS_VERSION == 2:
-            for p in self._parameters:
+            for p in self._parameters.values():
                 p._namespace = namespace
 
             self._node.add_on_set_parameters_callback(self._reconfigure2Callback)
