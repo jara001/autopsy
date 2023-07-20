@@ -118,6 +118,9 @@ class Node(NodeI):
         """
         super(Node, self).__init__(name)
 
+        # Workaround for Time.now()
+        self.Time.now = super(Node, self).get_clock().now
+
 
     def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
         """Create a publisher. (ROS1 version)
@@ -206,9 +209,6 @@ class Node(NodeI):
         In ROS2, class does not care. Time is stored in nanoseconds.
         """
         return TimeI(secs, nsecs)
-
-    # Workaround for Time.now()
-    self.Time.now = super(Node, self).get_clock().now
 
 
     def get_time(self):
