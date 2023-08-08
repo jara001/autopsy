@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.8.0 - 2023-07-20
 ### Added
 - `reconfigure`:
   - Namespace is now used for recognizing whether the parameter being updated belongs to the current ParameterList. (This is required for ROS2.)
