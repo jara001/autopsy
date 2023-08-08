@@ -12,6 +12,7 @@ except:
     pass
 
 from .ros1_qos import DurabilityPolicy
+from .ros1_time import Time
 from .ros1_clock import Clock
 from .ros1_logger import Logger
 
@@ -38,6 +39,9 @@ class Node(object):
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node
         """
         rospy.init_node(name = name)
+
+        # Part of workaround for Time.now()
+        self.Time = Time()
 
 
     def get_name(self):
