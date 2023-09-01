@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- `unicore`:
+  - New compatibility layer to cover node spinning and initialization.
+  - Functions: `spin()` and `init()`.
+  - Decorators: `@ros1_only` and `@ros2_only` with an optional argument to use different function instead.
+
 ## 0.8.1 - 2023-08-08
 ### Fixed
 - `uninode`:
