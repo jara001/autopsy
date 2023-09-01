@@ -86,24 +86,16 @@ class MyNode(Node):
 # Imports & Globals
 ######################
 
-# Figure out ROS version
-try:
-    import rospy
+from autopsy.core import ROS_VERSION
 
+if ROS_VERSION == 1:
     from .ros1_node import Node as NodeI
     from .ros1_time import Time as TimeI
     from .ros1_qos import *
 
-    ROS_VERSION = 1
-except:
-    try:
-        from rclpy.node import Node as NodeI
-        from rclpy.qos import *
-
-        ROS_VERSION = 2
-    except:
-        print ("No ROS package detected.")
-        ROS_VERSION = 0
+elif ROS_VERSION == 2:
+    from rclpy.node import Node as NodeI
+    from rclpy.qos import *
 
 
 ######################

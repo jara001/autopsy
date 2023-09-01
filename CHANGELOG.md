@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   - Functions: `spin()` and `init()`.
   - Decorators: `@ros1_only` and `@ros2_only` with an optional argument to use different function instead.
 
+### Changed
+- `uninode`:
+  - `ROS_VERSION` is determined inside `unicore`.
+
 ## 0.8.1 - 2023-08-08
 ### Fixed
 - `uninode`:
