@@ -111,3 +111,16 @@ class Core(object):
             rospy.spin()
         elif ROS_VERSION == 2:
             rclpy.spin(node = node, executor = executor)
+
+
+    @ros2_only
+    def shutdown(context = None):
+        """Shutdown a previously initialized context and global executor.
+
+        Arguments:
+        context -- context to invalidate, if None default is used
+
+        Reference:
+        https://docs.ros2.org/latest/api/rclpy/api/init_shutdown.html#rclpy.shutdown
+        """
+        rclpy.shutdown(context = context)
