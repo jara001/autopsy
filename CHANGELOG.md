@@ -7,7 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 - `unicore`:
   - New compatibility layer to cover node spinning and initialization.
-  - Functions: `spin()` and `init()`.
+  - Object `Core`:
+    - Functions: `spin()` and `init()`.
   - Decorators: `@ros1_only` and `@ros2_only` with an optional argument to use different function instead.
 
 ### Changed

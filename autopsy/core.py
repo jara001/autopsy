@@ -80,31 +80,34 @@ def ros2_only(f):
 # Universal Core functions
 ######################
 
-def init(args = None, context = None):
-    """Initialize ROS communications for a given context.
+class Core(object):
+    """Universal core class that supports both ROS 1 and ROS 2."""
 
-    Arguments:
-    args -- command line arguments, list
-    context -- context to initialize, if None default is used
+    def init(args = None, context = None):
+        """Initialize ROS communications for a given context.
 
-    Reference:
-    https://docs.ros2.org/foxy/api/rclpy/api/init_shutdown.html#rclpy.init
-    """
-    if ROS_VERSION == 2:
-        rclpy.init(args = args, context = context)
+        Arguments:
+        args -- command line arguments, list
+        context -- context to initialize, if None default is used
+
+        Reference:
+        https://docs.ros2.org/foxy/api/rclpy/api/init_shutdown.html#rclpy.init
+        """
+        if ROS_VERSION == 2:
+            rclpy.init(args = args, context = context)
 
 
-def spin(node = None, executor = None):
-    """Execute work and block until the node is shutdown.
+    def spin(node = None, executor = None):
+        """Execute work and block until the node is shutdown.
 
-    Arguments:
-    node -- instance of Node to be checked for work
-    executor -- executor to use, if None global is used
+        Arguments:
+        node -- instance of Node to be checked for work
+        executor -- executor to use, if None global is used
 
-    Reference:
-    https://docs.ros2.org/foxy/api/rclpy/api/init_shutdown.html#rclpy.spin
-    """
-    if ROS_VERSION == 1:
-        rospy.spin()
-    elif ROS_VERSION == 2:
-        rclpy.spin(node = node, executor = executor)
+        Reference:
+        https://docs.ros2.org/foxy/api/rclpy/api/init_shutdown.html#rclpy.spin
+        """
+        if ROS_VERSION == 1:
+            rospy.spin()
+        elif ROS_VERSION == 2:
+            rclpy.spin(node = node, executor = executor)

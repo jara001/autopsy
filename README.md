@@ -410,21 +410,21 @@ Universal core (or unicore) serves as a compatibility layer for running a ROS no
 
 Example:
 ```python
-from autopsy import core
+from autopsy.core import *
 from autopsy.node import Node
 from std_msgs.msg import Int32
 
-@core.ros2_only(other_callback)
+@ros2_only(other_callback)
 def callback(data):
     print("Called from ROS2!")
 
 def other_callback(data):
     print("Called from ROS1!")
 
-core.init()
+Core.init()
 
 n = Node("testing_node")
 n.Subscriber("/topic", Int32, callback)
 
-core.spin(n)
+Core.spin(n)
 ```
