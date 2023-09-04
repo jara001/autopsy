@@ -84,7 +84,7 @@ class Core(object):
     """Universal core class that supports both ROS 1 and ROS 2."""
 
     @ros2_only
-    def init(args = None, context = None):
+    def init(self, args = None, context = None):
         """Initialize ROS communications for a given context.
 
         Arguments:
@@ -97,7 +97,7 @@ class Core(object):
         rclpy.init(args = args, context = context)
 
 
-    def spin(node = None, executor = None):
+    def spin(self, node = None, executor = None):
         """Execute work and block until the node is shutdown.
 
         Arguments:
@@ -114,7 +114,7 @@ class Core(object):
 
 
     @ros2_only
-    def shutdown(context = None):
+    def shutdown(self, context = None):
         """Shutdown a previously initialized context and global executor.
 
         Arguments:
