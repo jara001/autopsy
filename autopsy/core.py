@@ -83,6 +83,7 @@ def ros2_only(f):
 class Core(object):
     """Universal core class that supports both ROS 1 and ROS 2."""
 
+    @ros2_only
     def init(args = None, context = None):
         """Initialize ROS communications for a given context.
 
@@ -93,8 +94,7 @@ class Core(object):
         Reference:
         https://docs.ros2.org/foxy/api/rclpy/api/init_shutdown.html#rclpy.init
         """
-        if ROS_VERSION == 2:
-            rclpy.init(args = args, context = context)
+        rclpy.init(args = args, context = context)
 
 
     def spin(node = None, executor = None):
