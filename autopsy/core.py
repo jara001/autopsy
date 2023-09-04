@@ -124,3 +124,7 @@ class Core(object):
         https://docs.ros2.org/latest/api/rclpy/api/init_shutdown.html#rclpy.shutdown
         """
         rclpy.shutdown(context = context)
+
+
+# Workaround for 'unbound method' error in Python 2.
+Core = Core()
