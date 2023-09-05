@@ -66,7 +66,7 @@ class Node(object):
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_publisher
         """
-        return rospy.Publisher(name = topic, data_class = msg_type, latch = qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL, queue_size = qos_profile.depth)
+        return rospy.Publisher(name = topic, data_class = msg_type, tcp_nodelay = qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT, latch = qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL, queue_size = qos_profile.depth)
 
 
     def create_subscription(self, msg_type, topic, callback, qos_profile, **kwargs):
@@ -82,7 +82,7 @@ class Node(object):
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_subscription
         """
-        return rospy.Subscriber(name = topic, data_class = msg_type, callback = callback, queue_size = qos_profile.depth)
+        return rospy.Subscriber(name = topic, data_class = msg_type, callback = callback, queue_size = qos_profile.depth, tcp_nodelay = qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT)
 
 
     def create_rate(self, frequency, **kwargs):
