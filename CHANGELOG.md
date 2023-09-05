@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.9.0 - 2023-09-05
 ### Added
 - `unicore`:
   - New compatibility layer to cover node spinning and initialization.
