@@ -8,8 +8,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `unicore`:
   - New compatibility layer to cover node spinning and initialization.
   - Object `Core`:
-    - Functions: `spin()`, `init()`, `shutdown()`.
+    - Functions: `spin()`, `spin_once()`, `spin_until_future_complete()`, `init()`, `shutdown()`.
   - Decorators: `@ros1_only` and `@ros2_only` with an optional argument to use different function instead.
+- `uninode`:
+  - Parameter `tcp_nodelay` is now supported for both Publisher and Subscriber. It translates to `BEST_EFFORT` and vice versa.
+  - QoS ReliabilityPolicy is in ROS1.
 
 ### Changed
 - `uninode`:
