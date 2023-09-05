@@ -54,7 +54,7 @@ class Time(object):
 
     def to_msg(self):
         msg = Time_msg()
-        msg.data.secs, msg.data.nsecs = self.seconds_nanoseconds
+        msg.data.secs, msg.data.nsecs = self.seconds_nanoseconds()
         return msg
 
 

@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 - `uninode`:
   - ROS2 functions properly handle integers instead of QoSProfile.
+  - `Time.to_msg()` handles data properly.
 
 ## 0.9.0 - 2023-09-05
 ### Added
