@@ -113,6 +113,46 @@ class Core(object):
             rclpy.spin(node = node, executor = executor)
 
 
+    @ros2_only(spin)
+    def spin_once(self, node, executor = None, timeout_sec = None):
+        """Execute one item of work or wait until timeout expires.
+
+        Arguments:
+        node -- instance of Node to be checked for work
+        executor -- executor to use, if None global is used
+        timeout_sec -- seconds to wait, if None or <0 block forever
+
+        Reference:
+        https://docs.ros2.org/foxy/api/rclpy/api/init_shutdown.html#rclpy.spin_once
+
+        Note:
+        ROS1 (rospy) does not support this. Something similar can be
+        achieved using `rospy.wait_for_message()`, but it is not the
+        same. So we translate this into ordinary `rospy.spin()`.
+        """
+        rclpy.spin_once(node = node, executor = executor, timeout_sec = timeout_sec)
+
+
+    @ros2_only(spin)
+    def spin_until_future_complete(self, node, future, executor = None, timeout_sec = None):
+        """Execute work until the future is complete.
+
+        Arguments:
+        node -- instance of Node to be checked for work
+        future -- future object to wait on
+        executor -- executor to use, if None global is used
+        timeout_sec -- seconds to wait, if None or <0 block forever
+
+        Reference:
+        https://docs.ros2.org/foxy/api/rclpy/api/init_shutdown.html#rclpy.spin_until_future_complete
+
+        Note:
+        ROS1 (rospy) does not support this, so we translate
+        it into ordinary `rospy.spin()`.
+        """
+        rclpy.spin_until_future_complete(node = node, future = future, executor = executor, timeout_sec = timeout_sec)
+
+
     @ros2_only
     def shutdown(self, context = None):
         """Shutdown a previously initialized context and global executor.
