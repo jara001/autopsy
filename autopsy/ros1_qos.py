@@ -26,6 +26,22 @@ class DurabilityPolicy(Enum):
 
 
 ######################
+# QoSReliablityPolicy
+######################
+
+class ReliabilityPolicy(Enum):
+    """Enum to mimic ROS2 `ReliabilityPolicy`.
+
+    Reference:
+    https://docs.ros2.org/foxy/api/rclpy/api/qos.html#rclpy.qos.ReliabilityPolicy
+    """
+
+    SYSTEM_DEFAULT = 0
+    RELIABLE = 1
+    BEST_EFFORT = 2
+
+
+######################
 # QoSProfile class
 ######################
 
@@ -37,7 +53,10 @@ class QoSProfile(object):
     https://docs.ros.org/en/rolling/Concepts/About-Quality-of-Service-Settings.html
     """
 
-    def __init__(self, depth, durability = DurabilityPolicy.SYSTEM_DEFAULT, **kwargs):
+    def __init__(self, depth,
+            durability = DurabilityPolicy.SYSTEM_DEFAULT,
+            reliability = ReliabilityPolicy.SYSTEM_DEFAULT,
+        **kwargs):
         """Initialize the class.
 
         Arguments:
@@ -50,3 +69,4 @@ class QoSProfile(object):
         """
         self.depth = depth
         self.durability = durability
+        self.reliability = reliability

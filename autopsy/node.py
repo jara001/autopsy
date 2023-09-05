@@ -86,24 +86,16 @@ class MyNode(Node):
 # Imports & Globals
 ######################
 
-# Figure out ROS version
-try:
-    import rospy
+from autopsy.core import ROS_VERSION
 
+if ROS_VERSION == 1:
     from .ros1_node import Node as NodeI
     from .ros1_time import Time as TimeI
     from .ros1_qos import *
 
-    ROS_VERSION = 1
-except:
-    try:
-        from rclpy.node import Node as NodeI
-        from rclpy.qos import *
-
-        ROS_VERSION = 2
-    except:
-        print ("No ROS package detected.")
-        ROS_VERSION = 0
+elif ROS_VERSION == 2:
+    from rclpy.node import Node as NodeI
+    from rclpy.qos import *
 
 
 ######################
@@ -131,12 +123,14 @@ class Node(NodeI):
         Arguments (only those that are used):
         name -- name of the topic to publish to, str
         data_class -- class of the ROS message
+        tcp_nodelay -- disable Nagle algorithm on TCPROS to lower latency, bool
+        latch -- enable latching on the connection, bool
         queue_size -- number of messages to be kept in queue, int
 
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Publisher-class.html
         """
-        return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = QoSProfile(depth = queue_size, durability = DurabilityPolicy.TRANSIENT_LOCAL if latch else DurabilityPolicy.VOLATILE))
+        return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = QoSProfile(depth = queue_size, durability = DurabilityPolicy.TRANSIENT_LOCAL if latch else DurabilityPolicy.VOLATILE, reliability = ReliabilityPolicy.BEST_EFFORT if tcp_nodelay else ReliabilityPolicy.RELIABLE))
 
 
     def Subscriber(self, name, data_class, callback=None, callback_args=None, queue_size=10, buff_size=65536, tcp_nodelay=False):
@@ -147,11 +141,12 @@ class Node(NodeI):
         data_class -- class of the ROS message
         callback -- function to be called upon receiving a message, Callable[msg_type]
         queue_size -- number of messages to be kept in queue, int
+        tcp_nodelay -- disable Nagle algorithm on TCPROS to lower latency, bool
 
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Subscriber-class.html
         """
-        return super(Node, self).create_subscription(msg_type = data_class, topic = name, callback = callback, qos_profile = QoSProfile(depth = queue_size))
+        return super(Node, self).create_subscription(msg_type = data_class, topic = name, callback = callback, qos_profile = QoSProfile(depth = queue_size, reliability = ReliabilityPolicy.BEST_EFFORT if tcp_nodelay else ReliabilityPolicy.RELIABLE))
 
 
     def Rate(self, hz, reset=False):

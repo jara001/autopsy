@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.9.0 - 2023-09-05
+### Added
+- `unicore`:
+  - New compatibility layer to cover node spinning and initialization.
+  - Object `Core`:
+    - Functions: `spin()`, `spin_once()`, `spin_until_future_complete()`, `init()`, `shutdown()`.
+  - Decorators: `@ros1_only` and `@ros2_only` with an optional argument to use different function instead.
+- `uninode`:
+  - Parameter `tcp_nodelay` is now supported for both Publisher and Subscriber. It translates to `BEST_EFFORT` and vice versa.
+  - QoS ReliabilityPolicy is in ROS1.
+
+### Changed
+- `uninode`:
+  - `ROS_VERSION` is determined inside `unicore`.
+
 ## 0.8.1 - 2023-08-08
 ### Fixed
 - `uninode`:

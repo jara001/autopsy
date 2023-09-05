@@ -4,6 +4,7 @@ _Python utilities for the F1tenth project._
 Currently, this package contains following modules:
 - [reconfigure](#reconfigure-module)
 - [uninode](#uninode-module)
+- [unicore](#unicore-module)
 
 
 
@@ -392,4 +393,38 @@ class MyNode(Node):
 
     def topic_callback(self, msg):
         print ("Received:", msg.data)
+```
+
+
+
+## Unicore module
+
+Universal core layer for both ROS 1 and ROS 2.
+
+Universal core (or unicore) serves as a compatibility layer for running a ROS node that is executable from both ROS versions.
+
+- [Example](#full-example-2)
+
+
+### Full example
+
+Example:
+```python
+from autopsy.core import *
+from autopsy.node import Node
+from std_msgs.msg import Int32
+
+@ros2_only(other_callback)
+def callback(data):
+    print("Called from ROS2!")
+
+def other_callback(data):
+    print("Called from ROS1!")
+
+Core.init()
+
+n = Node("testing_node")
+n.Subscriber("/topic", Int32, callback)
+
+Core.spin(n)
 ```
