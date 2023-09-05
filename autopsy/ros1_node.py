@@ -11,7 +11,7 @@ try:
 except:
     pass
 
-from .ros1_qos import DurabilityPolicy, ReliabilityPolicy
+from .ros1_qos import *
 from .ros1_time import Time
 from .ros1_clock import Clock
 from .ros1_logger import Logger
@@ -66,7 +66,7 @@ class Node(object):
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_publisher
         """
-        return rospy.Publisher(name = topic, data_class = msg_type, tcp_nodelay = qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT, latch = qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL, queue_size = qos_profile.depth)
+        return rospy.Publisher(name = topic, data_class = msg_type, tcp_nodelay = isinstance(qos_profile, QoSProfile) and qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT, latch = isinstance(qos_profile, QoSProfile) and qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL, queue_size = qos_profile.depth if isinstance(qos_profile, QoSProfile) else qos_profile)
 
 
     def create_subscription(self, msg_type, topic, callback, qos_profile, **kwargs):
@@ -82,7 +82,7 @@ class Node(object):
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_subscription
         """
-        return rospy.Subscriber(name = topic, data_class = msg_type, callback = callback, queue_size = qos_profile.depth, tcp_nodelay = qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT)
+        return rospy.Subscriber(name = topic, data_class = msg_type, callback = callback, queue_size = qos_profile.depth if isinstance(qos_profile, QoSProfile) else qos_profile, tcp_nodelay = isinstance(qos_profile, QoSProfile) and qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT)
 
 
     def create_rate(self, frequency, **kwargs):
