@@ -11,7 +11,7 @@ try:
 except:
     pass
 
-from .ros1_qos import DurabilityPolicy
+from .ros1_qos import DurabilityPolicy, ReliabilityPolicy
 from .ros1_time import Time
 from .ros1_clock import Clock
 from .ros1_logger import Logger
