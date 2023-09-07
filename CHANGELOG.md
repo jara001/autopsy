@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.9.1 - 2023-09-07
 ### Changed
 - `uninode`:
   - `Time.to_msg()` now returns data type 'time' in ROS1 instead of the message.
