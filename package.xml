@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>autopsy</name>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
   <description>A set of Python utils for F1Tenth project.</description>
 
   <maintainer email="klapajar@fel.cvut.cz">Jaroslav Klapálek</maintainer>

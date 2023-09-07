@@ -218,7 +218,7 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html
         """
-        return super(Node, self).get_clock().now().nanoseconds * (10 ** 9)
+        return float(super(Node, self).get_clock().now().nanoseconds) / (10 ** 9)
 
 
     def logdebug(self, msg, *args, **kwargs):
