@@ -7,6 +7,7 @@
 ######################
 
 from std_msgs.msg import Time as Time_msg
+from autopsy.core import ROS_VERSION
 
 
 CONVERSION_CONSTANT = 10 ** 9
@@ -53,9 +54,19 @@ class Time(object):
 
 
     def to_msg(self):
+        """Convert the object into ROS message.
+
+        VERY IMPORTANT Note:
+        This function is a trick. With ROS2 it behaves as expected,
+        however in ROS1 it does not return the message, but the
+        inner structure instead. This was done in order to be
+        able to use this for Header stamps.
+        In ROS2 the Header contains message type 'Time', however
+        in ROS1 stamp is contained in its own data type 'time'.
+        """
         msg = Time_msg()
         msg.data.secs, msg.data.nsecs = self.seconds_nanoseconds()
-        return msg
+        return msg if ROS_VERSION == 2 else msg.data
 
 
     @classmethod

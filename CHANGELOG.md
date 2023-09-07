@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Changed
+- `uninode`:
+  - `Time.to_msg()` now returns data type 'time' in ROS1 instead of the message.
+
 ### Fixed
 - `uninode`:
   - ROS2 functions properly handle integers instead of QoSProfile.
