@@ -103,7 +103,7 @@ inside the parameter and announced to the reconfigure GUI.
 ######################
 
 # ROS Python client library (inside)
-import autopsy.node
+import autopsy.core
 
 
 # Overloading the operators
@@ -115,14 +115,14 @@ from enum import Enum, EnumMeta
 
 
 # Message types
-if autopsy.node.ROS_VERSION == 1:
+if autopsy.core.ROS_VERSION == 1:
     from dynamic_reconfigure.msg import ConfigDescription, Config, Group, ParamDescription, BoolParameter, IntParameter, StrParameter, DoubleParameter, GroupState
     from dynamic_reconfigure.srv import Reconfigure
 
     # ROS1 compiles the messages into two, in contrast to ROS2.
     from dynamic_reconfigure.srv import ReconfigureResponse
 
-if autopsy.node.ROS_VERSION == 2:
+if autopsy.core.ROS_VERSION == 2:
     # ROS2 uses different messages for rqt_reconfigure.
     from rcl_interfaces.srv import SetParameters
     from rcl_interfaces.msg import ParameterType, ParameterDescriptor, SetParametersResult, Parameter
@@ -644,12 +644,12 @@ class ParameterReconfigure(object):
     def reconfigure(self, namespace = None, node = None):
 
         if node is None:
-            self._node = autopsy.node.rospy
+            self._node = autopsy.core.rospy
         else:
             self._node = node
 
         # ROS2: Use current Parameter API.
-        if autopsy.node.ROS_VERSION == 2:
+        if autopsy.core.ROS_VERSION == 2:
             for p in self._parameters.values():
                 p._namespace = namespace
 

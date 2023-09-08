@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Fixed
+- `reconfigure`
+  - `ROS_VERSION` and `rospy` is now properly imported from `unicore`.
+
 ## 0.9.1 - 2023-09-07
 ### Changed
 - `uninode`:
