@@ -90,6 +90,7 @@ from autopsy.core import ROS_VERSION
 
 if ROS_VERSION == 1:
     import rospy
+    from rospy import wait_for_message as rospy_wait_for_message
     from .ros1_node import Node as NodeI
     from .ros1_time import Time as TimeI
     from .ros1_qos import *
@@ -97,6 +98,7 @@ if ROS_VERSION == 1:
 elif ROS_VERSION == 2:
     from rclpy.node import Node as NodeI
     from rclpy.qos import *
+    from .ports import rclpy_wait_for_message
 
 
 ######################
@@ -248,6 +250,34 @@ class Node(NodeI):
     def logfatal(self, msg, *args, **kwargs):
         """Log a message with severity 'FATAL'."""
         return super(Node, self).get_logger().fatal(str(msg) % args, **kwargs)
+
+
+    def wait_for_message(self, topic, topic_type, timeout = None):
+        """Receive one message from a topic. (ROS1 version)
+
+        Arguments:
+        topic -- name of the topic, str
+        topic_type -- class of the ROS message
+        timeout -- timeout time in seconds, float; None = infinity
+
+        Returns:
+        msg -- message received on the topic or None
+
+        Note:
+        This version does not raise any exception itself.
+
+        Reference:
+        https://docs.ros.org/en/kinetic/api/rospy/html/rospy.client-module.html#wait_for_message
+        """
+        if ROS_VERSION == 1:
+            return rospy_wait_for_message(topic = topic, topic_type = topic_type, timeout = timeout)
+        else:
+            return rclpy_wait_for_message.wait_for_message(
+                msg_type = topic_type,
+                node = self,
+                topic = topic,
+                time_to_wait = timeout if timeout is not None else -1
+            )[1]
 
 
     def __getattr__(self, name):
