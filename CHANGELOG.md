@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Fixed
+- `uninode`
+  - Add missing import of `rospy`.
+
 ## 0.9.2 - 2023-09-08
 ### Fixed
 - `reconfigure`

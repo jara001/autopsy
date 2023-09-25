@@ -89,6 +89,7 @@ class MyNode(Node):
 from autopsy.core import ROS_VERSION
 
 if ROS_VERSION == 1:
+    import rospy
     from .ros1_node import Node as NodeI
     from .ros1_time import Time as TimeI
     from .ros1_qos import *
