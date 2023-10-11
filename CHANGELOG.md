@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.9.4 - 2023-10-11
+### Added
+- `uninode`:
+  - Function `wait_for_message()` with ROS2 port from rolling.
+
 ## 0.9.3 - 2023-09-25
 ### Fixed
 - `uninode`
