@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.9.5 - 2023-10-17
+### Fixed
+- `uninode`
+  - `Time.now()` is now properly set in Python 3.
+
 ## 0.9.4 - 2023-10-11
 ### Added
 - `uninode`:
