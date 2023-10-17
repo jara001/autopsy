@@ -117,7 +117,12 @@ class Node(NodeI):
         super(Node, self).__init__(name)
 
         # Workaround for Time.now()
-        self.Time.now = super(Node, self).get_clock().now
+        try:
+            # Python 2
+            self.Time.now = super(Node, self).get_clock().now
+        except:
+            # Python 3
+            self.Time.__func__.now = super(Node, self).get_clock().now
 
 
     def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
