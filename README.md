@@ -403,7 +403,19 @@ Universal core layer for both ROS 1 and ROS 2.
 
 Universal core (or unicore) serves as a compatibility layer for running a ROS node that is executable from both ROS versions.
 
+- [Features](#features)
 - [Example](#full-example-2)
+
+
+### Features
+
+Here follows a list of implemented functions from 'rospy'/'rclpy':
+- (ROS2) init()
+- spin()
+- (ROS2) spin_once()
+- (ROS2) spin_until_future_complete()
+- (ROS2) shutdown()
+- duration.Duration() -- Duration is used to store stamps inside the messages. The opposite action is not yet implemented.
 
 
 ### Full example

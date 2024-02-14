@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- `uninode`
+  - Module `duration` with class `Duration` that is used for timestamps in the messages.
+
 ## 0.9.5 - 2023-10-17
 ### Fixed
 - `uninode`
