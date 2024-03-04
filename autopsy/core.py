@@ -14,11 +14,15 @@ try:
     import rospy
 
     ROS_VERSION = 1
+
+    import autopsy.ros1_duration as duration
 except:
     try:
         import rclpy
 
         ROS_VERSION = 2
+
+        import rclpy.duration as duration
     except:
         print ("No ROS package detected.")
         ROS_VERSION = 0
@@ -82,6 +86,8 @@ def ros2_only(f):
 
 class Core(object):
     """Universal core class that supports both ROS 1 and ROS 2."""
+
+    duration = duration
 
     @ros2_only
     def init(self, args = None, context = None):

@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 - `time`:
   - New module for measuring duration of code snippets. Port from `rosmeasure` ROS package.
+- `uninode`
+  - Module `duration` with class `Duration` that is used for timestamps in the messages.
 
 ## 0.9.5 - 2023-10-17
 ### Fixed
