@@ -5,6 +5,8 @@ Currently, this package contains following modules:
 - [reconfigure](#reconfigure-module)
 - [uninode](#uninode-module)
 - [unicore](#unicore-module)
+- qos (a wrapper to support `autopsy.qos`)
+- [time](#time-module)
 
 
 
@@ -440,3 +442,63 @@ n.Subscriber("/topic", Int32, callback)
 
 Core.spin(n)
 ```
+
+
+
+## Time module
+
+Set of utilities for measuring duration of code blocks. This was originally a part of `rosmeasure` package.
+
+- [Classes](#classes)
+- [Decorators](#decorators)
+
+
+### Classes
+The autopsy.time utility currently provides following classes:
+- TimeMeasurer
+
+
+#### TimeMeasurer
+
+TimeMeasurer measures time spend in the selected section of the
+code. It is created as:
+
+    tm = TimeMeasurer(
+        name = "Measurer",  # Name of the Measurer
+        units = "s"         # Time units used for the measuring
+    )
+
+Upon creation, these functions are used:
+ - start() -- Starts the measurement.
+ - end() -- Ends the measurement, storing the values inside.
+ - summary() -- Prints out the statistics for the Measurer.
+
+Another way of using this measurer is as follows:
+
+    with TimeMeasurer(name, units) as _ :
+        ...
+
+
+### Decorators
+The autopsy.time utility also provides decorators to be used
+instead of the classes:
+- @duration
+
+
+#### @duration
+
+Duration decorator is basically the same as TimeMeasurer. It
+is used as follows:
+
+    @duration(name, units)
+    def function():
+        pass
+
+The decorator supplies following section of the code:
+
+    TM = TimeMeasurer(name, units)
+    TM.start()
+    output = function()
+    TM.end()
+    TM.summary()
+    return output
