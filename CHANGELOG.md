@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.10.0 - 2024-03-04
+### Added
+- `qos`:
+  - Wrapper for importing the QoS settings in the same way as `rclpy`.
+- `time`:
+  - New module for measuring duration of code snippets. Port from `rosmeasure` ROS package.
+- `uninode`
+  - Module `duration` with class `Duration` that is used for timestamps in the messages.
+
+### Fixed
+- `uninode`
+  - `Time()` now works properly in ROS2.
+
 ## 0.9.5 - 2023-10-17
 ### Fixed
 - `uninode`

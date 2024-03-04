@@ -5,6 +5,8 @@ Currently, this package contains following modules:
 - [reconfigure](#reconfigure-module)
 - [uninode](#uninode-module)
 - [unicore](#unicore-module)
+- qos (a wrapper to support `autopsy.qos`)
+- [time](#time-module)
 
 
 
@@ -403,7 +405,19 @@ Universal core layer for both ROS 1 and ROS 2.
 
 Universal core (or unicore) serves as a compatibility layer for running a ROS node that is executable from both ROS versions.
 
+- [Features](#features)
 - [Example](#full-example-2)
+
+
+### Features
+
+Here follows a list of implemented functions from 'rospy'/'rclpy':
+- (ROS2) init()
+- spin()
+- (ROS2) spin_once()
+- (ROS2) spin_until_future_complete()
+- (ROS2) shutdown()
+- duration.Duration() -- Duration is used to store stamps inside the messages. The opposite action is not yet implemented.
 
 
 ### Full example
@@ -427,4 +441,71 @@ n = Node("testing_node")
 n.Subscriber("/topic", Int32, callback)
 
 Core.spin(n)
+```
+
+
+
+## Time module
+
+Set of utilities for measuring duration of code blocks. This was originally a part of `rosmeasure` package.
+
+- [Classes](#classes)
+- [Decorators](#decorators)
+
+
+### Classes
+The autopsy.time utility currently provides following classes:
+- TimeMeasurer
+
+
+#### TimeMeasurer
+
+TimeMeasurer measures time spend in the selected section of the
+code. It is created as:
+
+```py
+tm = TimeMeasurer(
+    name = "Measurer",  # Name of the Measurer
+    units = "s"         # Time units used for the measuring
+)
+```
+
+Upon creation, these functions are used:
+ - `start()` -- Starts the measurement.
+ - `end()` -- Ends the measurement, storing the values inside.
+ - `summary()` -- Prints out the statistics for the Measurer.
+
+Another way of using this measurer is as follows:
+
+```py
+with TimeMeasurer(name, units) as _ :
+    ...
+```
+
+### Decorators
+The autopsy.time utility also provides decorators to be used
+instead of the classes:
+- @duration
+
+
+#### @duration
+
+Duration decorator is basically the same as TimeMeasurer. It
+is used as follows:
+
+```py
+@duration(name, units)
+def function():
+    pass
+```
+
+The decorator supplies following section of the code:
+
+```py
+TM = TimeMeasurer(name, units)
+TM.start()
+output = function()
+TM.end()
+TM.summary()
+return output
 ```
