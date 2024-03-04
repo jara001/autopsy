@@ -97,6 +97,7 @@ if ROS_VERSION == 1:
 
 elif ROS_VERSION == 2:
     from rclpy.node import Node as NodeI
+    from rclpy.time import Time as TimeI
     from rclpy.qos import *
     from .ports import rclpy_wait_for_message
 
@@ -214,7 +215,7 @@ class Node(NodeI):
             3) If nsecs is lower than 0, reduce secs to make it positive.
         In ROS2, class does not care. Time is stored in nanoseconds.
         """
-        return TimeI(secs, nsecs)
+        return TimeI(seconds = secs, nanoseconds = nsecs)
 
 
     def get_time(self):

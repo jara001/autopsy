@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `uninode`
   - Module `duration` with class `Duration` that is used for timestamps in the messages.
 
+### Fixed
+- `uninode`
+  - `Time()` now works properly in ROS2.
+
 ## 0.9.5 - 2023-10-17
 ### Fixed
 - `uninode`
