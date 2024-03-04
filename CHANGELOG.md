@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
 ### Added
+- `qos`:
+  - Wrapper for importing the QoS settings in the same way as `rclpy`.
 - `time`:
   - New module for measuring duration of code snippets. Port from `rosmeasure` ROS package.
 - `uninode`
