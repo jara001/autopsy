@@ -22,7 +22,7 @@ class Duration(object):
     https://github.com/ros2/rclpy/blob/humble/rclpy/rclpy/duration.py
     """
 
-    def __init__(self, *, seconds=0, nanoseconds=0):
+    def __init__(self, seconds=0, nanoseconds=0):
         """Initialize the class.
 
         Arguments:

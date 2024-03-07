@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Fixed
+- `duration`:
+  - Remove `*` from arguments to support Py2.
+
 ## 0.10.0 - 2024-03-04
 ### Added
 - `qos`:
