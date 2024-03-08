@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
     - Keyword-only argument to `@duration` to report summary only every `interval`.
     - A warning is generated when the argument is not used.
 
+### Changed
+- `time`:
+    - Timer summary now also contains minimum value.
+
 ## 0.10.1 - 2024-03-07
 ### Fixed
 - `duration`:

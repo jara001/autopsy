@@ -145,6 +145,7 @@ class Measurer(object):
         self._start = 0
         self._count = 0
         self._sum = 0
+        self._min = []  # min([], X) returns the number everytime
         self._max = 0
         self._last = 0
 
@@ -217,6 +218,7 @@ class Measurer(object):
         """Update internal statistics of the Measurer."""
         self._count += 1
         self._sum += self._last
+        self._min = min(self._min, self._last)
         self._max = max(self._max, self._last)
 
 
@@ -226,8 +228,9 @@ class Measurer(object):
         if self._count == 0:
             print("%s: EMPTY" % self._name)
         else:
-            print("%s: cur=%.4f%s avg=%.4f%s max=%.4f%s" % (
+            print("%s: cur=%.4f%s min=%.4f%s avg=%.4f%s max=%.4f%s" % (
                   self._name, self._last, self._unit,
+                  self._min, self._unit,
                   self._sum / self._count, self._unit,
                   self._max, self._unit
                   ))
