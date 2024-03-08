@@ -509,3 +509,9 @@ TM.end()
 TM.summary()
 return output
 ```
+
+However, in contrast to TimeMeasurer, a keyword-only argument `interval`
+can be passed to the decorator to report the summary periodically, and not
+on every function call.
+
+Since `>0.10.1` not passing `interval` generates a warning on start-up.

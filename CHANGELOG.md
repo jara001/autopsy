@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- `time`:
+    - Keyword-only argument to `@duration` to report summary only every `interval`.
+    - A warning is generated when the argument is not used.
+
 ## 0.10.1 - 2024-03-07
 ### Fixed
 - `duration`:

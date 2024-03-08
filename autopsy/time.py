@@ -50,6 +50,12 @@ The decorator supplies following section of the code:
     TM.end()
     TM.summary()
     return output
+
+However, in contrast to TimeMeasurer, a keyword-only argument 'interval'
+can be passed to the decorator to report the summary periodically, and not
+on every function call.
+
+Since >0.10.1 not passing 'interval' generates a warning on start-up.
 """
 ######################
 # Imports & Globals
@@ -57,6 +63,9 @@ The decorator supplies following section of the code:
 
 # Py2: Allow import of module with the same name
 from __future__ import absolute_import
+
+# ReportTimer
+from threading import _Timer
 
 # Timing
 import time
@@ -88,6 +97,23 @@ def conddisable():
 
 
 ######################
+# ReportTimer class
+######################
+
+class ReportTimer(_Timer):
+    """A thread for reporting the measurer.
+
+    Source:
+    https://stackoverflow.com/questions/12435211/threading-timer-repeat-function-every-n-seconds
+    """
+
+    def run(self):
+        """Run a thread function every 'self.interval'."""
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
+
+
+######################
 # Measurer class
 ######################
 
@@ -96,7 +122,7 @@ class Measurer(object):
 
     UNITS = ["", "s", "ms", "us", "ns"]
 
-    def __init__(self, name = "", unit = ""):
+    def __init__(self, name = "", unit = "", **kwargs):
         """Initialize the Measurer class.
 
         Arguments
@@ -271,6 +297,16 @@ def duration(*args, **kwargs):
 
     TM = TimeMeasurer(*args, **kwargs)
 
+    if "interval" in kwargs:
+        report = ReportTimer(kwargs.get("interval"), TM.summary)
+        report.daemon = True
+        report.start()
+    else:
+        print (
+            "Warning: @duration is used without kwarg 'interval', "
+            "therefore it will report summary on every call."
+        )
+
     def wrapper(function, *args, **kwags):
         def duration_measurer(*args, **kwargs):
             TM.start()
@@ -281,7 +317,18 @@ def duration(*args, **kwargs):
             return output
         return duration_measurer
 
+    def wrapper_with_timer(function, *args, **kwags):
+        def duration_measurer(*args, **kwargs):
+            TM.start()
+            output = function(*args, **kwargs)
+            TM.end()
+
+            return output
+        return duration_measurer
+
     def let_pass(function, *args, **kwargs):
         return lambda *x, **y: function(*x, **y)
 
-    return let_pass if DISABLED else wrapper
+    return let_pass if DISABLED else (
+        wrapper if "interval" not in kwargs else wrapper_with_timer
+    )
