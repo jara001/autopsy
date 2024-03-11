@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `time`:
     - Keyword-only argument to `@duration` to report summary only every `interval`.
     - A warning is generated when the argument is not used.
+    - `interval` can be set to `None` in order to disable automatic statistics.
+    - Argument `filename` that stores every measurement into the file.
 
 ### Changed
 - `time`:

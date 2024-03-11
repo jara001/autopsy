@@ -122,7 +122,7 @@ class Measurer(object):
 
     UNITS = ["", "s", "ms", "us", "ns"]
 
-    def __init__(self, name = "", unit = "", **kwargs):
+    def __init__(self, name = "", unit = "", filename = "", **kwargs):
         """Initialize the Measurer class.
 
         Arguments
@@ -131,11 +131,16 @@ class Measurer(object):
             name of the Measurer
         unit: str = ""
             units used by the measurer
+        filename: str = ""
+            name of the file to log measured data
 
         Raises
         ------
         ValueError
             when unit is not in UNITS
+
+        IOError
+            raised by 'open()'
         """
         if unit not in self.UNITS:
             raise ValueError("unknown unit '%s'" % unit)
@@ -148,6 +153,7 @@ class Measurer(object):
         self._min = []  # min([], X) returns the number everytime
         self._max = 0
         self._last = 0
+        self._file = open(filename, "a") if filename != "" else None
 
 
     def unitExp(self, unit):
@@ -220,6 +226,9 @@ class Measurer(object):
         self._sum += self._last
         self._min = min(self._min, self._last)
         self._max = max(self._max, self._last)
+
+        if self._file is not None:
+            self._file.write("%f\n" % self._last)
 
 
     @conddisable()
@@ -301,9 +310,12 @@ def duration(*args, **kwargs):
     TM = TimeMeasurer(*args, **kwargs)
 
     if "interval" in kwargs:
-        report = ReportTimer(kwargs.get("interval"), TM.summary)
-        report.daemon = True
-        report.start()
+        if kwargs.get("interval") is not None:
+            report = ReportTimer(kwargs.get("interval"), TM.summary)
+            report.daemon = True
+            report.start()
+    elif "filename" in kwargs:
+        kwargs["interval"] = None
     else:
         print (
             "Warning: @duration is used without kwarg 'interval', "
