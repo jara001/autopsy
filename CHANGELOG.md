@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.10.2 - 2024-03-11
+### Added
+- `time`:
+    - Keyword-only argument to `@duration` to report summary only every `interval`.
+    - A warning is generated when the argument is not used.
+    - `interval` can be set to `None` in order to disable automatic statistics.
+    - Argument `filename` that stores every measurement into the file.
+
+### Changed
+- `time`:
+    - Timer summary now also contains minimum value.
+
 ## 0.10.1 - 2024-03-07
 ### Fixed
 - `duration`:
