@@ -41,7 +41,7 @@ class Node(object):
         rospy.init_node(name = name)
 
         # Part of workaround for Time.now()
-        self.Time = Time()
+        self.Time = Time
 
 
     def get_name(self):

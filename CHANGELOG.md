@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.10.3 - 2024-04-09
+### Added
+- Before building the project, all uncommitted changes are stashed.
+
+### Fixed
+- `uninode`
+    - `Node.Time` should now be properly used everywhere.
+
 ## 0.10.2 - 2024-03-11
 ### Added
 - `time`:
