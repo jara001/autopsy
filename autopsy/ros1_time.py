@@ -72,9 +72,9 @@ class Time(object):
     @classmethod
     def from_msg(cls, msg, **kwargs):
         """Obtain Time from a message."""
-        return cls(seconds = msg.data.secs, nanoseconds = msg.data.nsecs)
+        return cls(seconds = msg.secs, nanoseconds = msg.nsecs)
 
-
+    # TODO: Add this to ROS2 and just reimplement ROS1 Time as it is much better.
     ## Operators ##
     # Source: https://github.com/ros2/rclpy/blob/humble/rclpy/rclpy/time.py
     def __repr__(self):

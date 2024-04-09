@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Fixed
+- `uninode`
+    - `Node.Time` should now be properly used everywhere.
+
 ## 0.10.2 - 2024-03-11
 ### Added
 - `time`:
