@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.10.4 - 2024-04-09
+### Added
+- `reconfigure`
+    - `ParameterServer.getValue()` to obtain the parameter value.
+
 ## 0.10.3 - 2024-04-09
 ### Added
 - Before building the project, all uncommitted changes are stashed.
