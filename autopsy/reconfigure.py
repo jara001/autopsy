@@ -1011,6 +1011,30 @@ class ParameterServer(ParameterReconfigure):
         return name in self._parameters
 
 
+    def getValue(self, name):
+        """Obtain a value of parameter 'name'.
+
+        Arguments:
+        name -- name of the parameter, str
+
+        Returns:
+        value -- value of the parameter, any
+
+        Raises:
+        ValueError -- when parameter with name 'name' does not exist
+
+        Note: This serves as a compatibility layer with other versions
+        of parameter handling classes. All parameters can be still accessed
+        using the dot notation.
+        """
+        if not self.__contains__(name):
+            raise ValueError(
+                "Parameter with name '%s' does not exist." % name
+            )
+
+        return self._parameters[name].value
+
+
     def link(self, param1, param2):
         """Links two constrained parameters together so one cannot be more then the other.
 
