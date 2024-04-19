@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.10.5 - 2024-04-19
+### Added
+- `reconfigure`
+    - In ROS2, FloatingPointRange and IntegerRange are used to store the variable limits and show the slider in GUI.
+
 ## 0.10.4 - 2024-04-09
 ### Added
 - `reconfigure`

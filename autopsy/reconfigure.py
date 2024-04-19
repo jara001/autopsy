@@ -125,7 +125,7 @@ if autopsy.core.ROS_VERSION == 1:
 if autopsy.core.ROS_VERSION == 2:
     # ROS2 uses different messages for rqt_reconfigure.
     from rcl_interfaces.srv import SetParameters
-    from rcl_interfaces.msg import ParameterType, ParameterDescriptor, SetParametersResult, Parameter
+    from rcl_interfaces.msg import ParameterType, ParameterDescriptor, SetParametersResult, Parameter, FloatingPointRange, IntegerRange
 
     # Translation of types to ParameterType
     PTypes = {
@@ -352,6 +352,7 @@ class Parameter(object):
     # Note: It would be nice to get around this by returning a value
     # when calling P.parameter instead of the object. But currently, I have no
     # idea how to do this.
+    # It should be possible with overloading __get__() similarly to property().
     # Other note: Currently, 'is', 'not' and 'bool()' are not supported.
     @staticmethod
     def __operator__(first, second = None, operator = None):
@@ -792,6 +793,10 @@ class ParameterReconfigure(object):
                 ParameterDescriptor(
                     type = PTypes[_param.type],
                     description = _param.description,
+                    **{
+                        **({"floating_point_range": [FloatingPointRange(from_value = _param.min, to_value = _param.max)]} if _param.type == float else {}),
+                        **({"integer_range": [IntegerRange(from_value = _param.min, to_value = _param.max)]} if _param.type == int else {})
+                    }
                 )
             ) for _name, _param in self._parameters.items()
         ]

@@ -272,8 +272,8 @@ In the current implementation following features are not supported:
 Because of the limitations of ROS2 API it is most likely that they will be never supported.
 
 As from the ROS2 Parameter API side these features are currently not implemented:
-- IntegerRange,
-- FloatingPointRange,
+- IntegerRange (limits are supported, step is not),
+- FloatingPointRange (limits are supported, step is not),
 - Arrays.
 
 
