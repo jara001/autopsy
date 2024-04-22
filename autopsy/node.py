@@ -109,13 +109,13 @@ elif ROS_VERSION == 2:
 class Node(NodeI):
     """Universal Node that supports both ROS1 and ROS2."""
 
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         """Initialize the class and ROS node.
 
         Arguments:
         name -- name of the ROS node
         """
-        super(Node, self).__init__(name)
+        super(Node, self).__init__(name, **kwargs)
 
         # Workaround for Time.now()
         try:

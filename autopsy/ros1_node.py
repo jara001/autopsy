@@ -33,12 +33,12 @@ class Node(object):
 
         Arguments:
         name -- name of the ROS node, str
-        **kwargs -- other, currently unsupported arguments
+        **kwargs -- other arguments passed to the rospy.init_node()
 
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node
         """
-        rospy.init_node(name = name)
+        rospy.init_node(name = name, **kwargs)
 
         # Part of workaround for Time.now()
         self.Time = Time
