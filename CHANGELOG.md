@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.10.7 - 2024-04-22
 ### Added
 - `uninode`:
     - `Node.__init__()` now allows to pass **kwargs that are forwarded to the base class initializer.
