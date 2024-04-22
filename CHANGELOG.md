@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.10.6 - 2024-04-22
 ### Changed
 - `unicode`:
     - Raise an `ImportError` exception when no suitable ROS package is found.
