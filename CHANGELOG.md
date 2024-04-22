@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Fixed
+- `reconfigure`:
+    - Remove `**{}` to make code Py2 compatible.
+
 ## 0.10.7 - 2024-04-22
 ### Added
 - `uninode`:
