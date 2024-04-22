@@ -10,22 +10,25 @@ a ROS node that is executable from both ROS versions.
 ######################
 
 # Figure out ROS version
+ROS_VERSION = 0
+
 try:
     import rospy
-
-    ROS_VERSION = 1
-
-    import autopsy.ros1_duration as duration
-except:
+except ImportError:
     try:
         import rclpy
-
+    except ImportError:
+        raise ImportError(
+            "No ROS package detected. Install 'rospy' or 'rclpy' first."
+        )
+    else:
         ROS_VERSION = 2
 
         import rclpy.duration as duration
-    except:
-        print ("No ROS package detected.")
-        ROS_VERSION = 0
+else:
+    ROS_VERSION = 1
+
+    import autopsy.ros1_duration as duration
 
 
 ######################
