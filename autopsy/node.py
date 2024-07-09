@@ -146,6 +146,15 @@ class Node(NodeI):
                     _kwargs["callback"] = getattr(self, name)
                     self.Subscriber(*_args, **_kwargs)
 
+            # Check whether the function should be a timer.
+            if getattr(method, "_is_timer", False):
+                # Create real timers and use the function as callback.
+                for _args, _kwargs in zip(
+                    method._timer_args, method._timer_kwargs
+                ):
+                    _kwargs["callback"] = getattr(self, name)
+                    self.Timer(*_args, **_kwargs)
+
 
     def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
         """Create a publisher. (ROS1 version)

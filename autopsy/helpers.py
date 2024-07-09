@@ -76,6 +76,30 @@ class Subscriber(object):
         return func
 
 
+class Timer(object):
+    """Timer decorator."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the decorator."""
+        super(Timer, self).__init__()
+        self.__args = args
+        self.__kwargs = kwargs
+
+
+    def __call__(self, func, *args, **kwargs):
+        """Execute the Timer."""
+        if not getattr(func, "_is_timer", False):
+            func._is_timer = True
+            func._timer_args = [self.__args]
+            func._timer_kwargs = [self.__kwargs]
+        else:
+            func._timer_args.append(self.__args)
+            func._timer_kwargs.append(self.__kwargs)
+
+        # Return the augmented function.
+        return func
+
+
 ######################
 # Functions
 ######################
