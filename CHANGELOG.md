@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 - `helpers`:
     - `Publisher` and `Subscriber` decorator for ROS1 nodes.
+    - `Execute` function to create node instance and spin it.
 
 ### Fixed
 - `reconfigure`:

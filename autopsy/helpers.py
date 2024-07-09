@@ -6,6 +6,13 @@ Currently implemented:
  - Publisher and Subscriber (ROS1) decorators for class Nodes.
 """
 ######################
+# Imports & Globals
+######################
+
+from autopsy.core import Core
+
+
+######################
 # Decorators
 ######################
 
@@ -69,3 +76,31 @@ class Subscriber(object):
 
         # Return the augmented function.
         return func
+
+
+######################
+# Functions
+######################
+
+def Execute(node, name = None):
+    """Execute a node class if the script is run directly.
+
+    Note: This is provided to avoid repeating code in every script.
+
+    Arguments:
+    node -- node to execute, Node class
+    name -- name of the node, str, optional
+    """
+    # Initialize the unicore
+    Core.init()
+
+    # Create a node instance and spin it
+    if name is None:
+        n = node()
+    else:
+        n = node(name)
+
+    Core.spin(n)
+
+    # Shutdown the unicore on node exit
+    Core.shutdown()
