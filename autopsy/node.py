@@ -127,7 +127,6 @@ class Node(NodeI):
 
         # Register decorators
         for name, method in self.__class__.__dict__.iteritems():
-            print(name, dir(method))
             # Check whether the function should be a publisher.
             if getattr(method, "_is_publisher", False):
                 # Create real publishers and store them inside this class.
