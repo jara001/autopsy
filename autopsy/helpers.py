@@ -59,9 +59,13 @@ class Subscriber(object):
 
     def __call__(self, func, *args, **kwargs):
         """Execute the Subscriber."""
-        func._is_callback = True
-        func._subscriber_args = self.__args
-        func._subscriber_kwargs = self.__kwargs
+        if not getattr(func, "_is_callback", False):
+            func._is_callback = True
+            func._subscriber_args = [self.__args]
+            func._subscriber_kwargs = [self.__kwargs]
+        else:
+            func._subscriber_args.append(self.__args)
+            func._subscriber_kwargs.append(self.__kwargs)
 
         # Return the augmented function.
         return func

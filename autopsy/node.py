@@ -139,11 +139,12 @@ class Node(NodeI):
 
             # Check whether the function should be a subscriber.
             if getattr(method, "_is_callback", False):
-                # Create a real subscriber and use the function as callback.
-                method._subscriber_kwargs["callback"] = getattr(self, name)
-                self.Subscriber(
-                    *method._subscriber_args, **method._subscriber_kwargs
-                )
+                # Create real subscribers and use the function as callback.
+                for _args, _kwargs in zip(
+                    method._subscriber_args, method._subscriber_kwargs
+                ):
+                    _kwargs["callback"] = getattr(self, name)
+                    self.Subscriber(*_args, **_kwargs)
 
 
     def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
