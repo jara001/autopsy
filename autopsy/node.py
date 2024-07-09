@@ -125,6 +125,26 @@ class Node(NodeI):
             # Python 3
             self.Time.__func__.now = super(Node, self).get_clock().now
 
+        # Register decorators
+        for name, method in self.__class__.__dict__.iteritems():
+            # Check whether the function should be a publisher.
+            if getattr(method, "_is_publisher", False):
+                # Create a real publisher and store in inside this class.
+                setattr(
+                    self, "_pub_%s" % name,
+                    self.Publisher(
+                        *method._publisher_args, **method._publisher_kwargs
+                    )
+                )
+
+            # Check whether the function should be a subscriber.
+            if getattr(method, "_is_callback", False):
+                # Create a real subscriber and use the function as callback.
+                method._subscriber_kwargs["callback"] = getattr(self, name)
+                self.Subscriber(
+                    *method._subscriber_args, **method._subscriber_kwargs
+                )
+
 
     def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
         """Create a publisher. (ROS1 version)

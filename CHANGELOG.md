@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+### Added
+- `helpers`:
+    - `Publisher` and `Subscriber` decorator for ROS1 nodes.
+
 ### Fixed
 - `reconfigure`:
     - Remove `**{}` to make code Py2 compatible.
