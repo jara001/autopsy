@@ -31,8 +31,6 @@ class Publisher(object):
         # This is the actual function that runs when the decorated function
         # is called.
         def publish(cls, *args, **kwargs):
-            print(cls, args, kwargs)
-
             pub = getattr(cls, "_pub_%s" % func.__name__, None)
 
             if pub is None:
