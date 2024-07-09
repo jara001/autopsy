@@ -127,15 +127,17 @@ class Node(NodeI):
 
         # Register decorators
         for name, method in self.__class__.__dict__.iteritems():
+            print(name, dir(method))
             # Check whether the function should be a publisher.
             if getattr(method, "_is_publisher", False):
-                # Create a real publisher and store in inside this class.
-                setattr(
-                    self, "_pub_%s" % name,
-                    self.Publisher(
-                        *method._publisher_args, **method._publisher_kwargs
+                # Create real publishers and store them inside this class.
+                setattr(self, "_pub_%s" % name, [])
+                for _args, _kwargs in zip(
+                    method._publisher_args, method._publisher_kwargs
+                ):
+                    getattr(self, "_pub_%s" % name).append(
+                        self.Publisher(*_args, **_kwargs)
                     )
-                )
 
             # Check whether the function should be a subscriber.
             if getattr(method, "_is_callback", False):

@@ -31,25 +31,34 @@ class Publisher(object):
         # This is the actual function that runs when the decorated function
         # is called.
         def publish(cls, *args, **kwargs):
-            pub = getattr(cls, "_pub_%s" % func.__name__, None)
+            pubs = getattr(cls, "_pub_%s" % func.__name__, [])
 
-            if pub is None:
+            if len(pubs) < 1:
                 raise ValueError(
                     "Trying to publish a message using '%s()' however the "
                     "underlying publisher '%s' has not been found."
                     % (func.__name__, "_pub_%s" % func.__name__)
                 )
 
-            pub.publish(
-                func(cls, *args, **kwargs)
-            )
-
-        publish._is_publisher = True
-        publish._publisher_args = self.__args
-        publish._publisher_kwargs = self.__kwargs
+            for pub in pubs:
+                pub.publish(
+                    func(cls, *args, **kwargs)
+                )
 
         # Initialize decorated function, prepare it for being a publisher.
-        return publish
+        if not getattr(func, "_is_publisher", False):
+            publish._is_publisher = True
+            publish._publisher_args = [self.__args]
+            publish._publisher_kwargs = [self.__kwargs]
+            return publish
+        else:
+            # However, if this is not the first publisher attached to this
+            # function, (meaning that the func is actually publish() above),
+            # just append everything there as it is able to properly handle
+            # all publishers.
+            func._publisher_args.append(self.__args)
+            func._publisher_kwargs.append(self.__kwargs)
+            return func
 
 
 class Subscriber(object):
