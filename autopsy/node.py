@@ -126,7 +126,7 @@ class Node(NodeI):
             self.Time.__func__.now = super(Node, self).get_clock().now
 
         # Register decorators
-        for name, method in self.__class__.__dict__.iteritems():
+        for name, method in self.__class__.__dict__.items():
             # Check whether the function should be a publisher.
             if getattr(method, "_is_publisher", False):
                 # Create real publishers and store them inside this class.
