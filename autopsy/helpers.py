@@ -42,10 +42,28 @@ class Publisher(object):
 
             msg = func(cls, *args, **kwargs)
 
-            for pub in pubs:
-                pub.publish(
-                    msg
+            # Only one message is returned; send it to every publisher.
+            if not isinstance(msg, list):
+                for pub in pubs:
+                    pub.publish(msg)
+
+            # The returned structure is a list.
+            # But raise an exception if the number of returned messages
+            # does not correspond to the number of the publishers.
+            # Note: List with one message is allowed everytime.
+            elif len(msg) != len(pubs) and len(msg) > 1:
+                raise ValueError(
+                    "Unable to publish messages using '%s()' as the number "
+                    "or returned messages is '%d' while number of registered "
+                    "publishers is '%d'."
+                    % (func.__name__, len(msg), len(pubs))
                 )
+
+            else:
+                for i, pub in enumerate(pubs):
+                    pub.publish(
+                        msg[i % len(msg)]
+                    )
 
         # Initialize decorated function, prepare it for being a publisher.
         if not getattr(func, "_is_publisher", False):
