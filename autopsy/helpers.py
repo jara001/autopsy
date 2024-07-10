@@ -40,9 +40,11 @@ class Publisher(object):
                     % (func.__name__, "_pub_%s" % func.__name__)
                 )
 
+            msg = func(cls, *args, **kwargs)
+
             for pub in pubs:
                 pub.publish(
-                    func(cls, *args, **kwargs)
+                    msg
                 )
 
         # Initialize decorated function, prepare it for being a publisher.
