@@ -61,9 +61,11 @@ class Publisher(object):
 
             else:
                 for i, pub in enumerate(pubs):
-                    pub.publish(
-                        msg[i % len(msg)]
-                    )
+                    # Skip the publisher is the msg is None.
+                    if msg[i % len(msg)] is not None:
+                        pub.publish(
+                            msg[i % len(msg)]
+                        )
 
         # Initialize decorated function, prepare it for being a publisher.
         if not getattr(func, "_is_publisher", False):
