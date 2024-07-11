@@ -134,7 +134,11 @@ class Node(NodeI):
                 for _args, _kwargs in zip(
                     method._publisher_args, method._publisher_kwargs
                 ):
-                    getattr(self, "_pub_%s" % name).append(
+                    # Insert the publisher to the front; as otherwise their
+                    # order is reversed. This is caused by the execution
+                    # sequence of decorators.
+                    getattr(self, "_pub_%s" % name).insert(
+                        0,
                         self.Publisher(*_args, **_kwargs)
                     )
 
