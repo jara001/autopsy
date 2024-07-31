@@ -21,6 +21,7 @@ Relations:
 | rospy.Rate                | self.Rate+                | self.create_rate          |
 | rospy.Timer               | self.Timer+               | self.create_timer         |
 | rospy.Service             | self.Service+             | self.create_service       |
+| rospy.ServiceProxy        | self.ServiceProxy+        | self.create_client        |
 | rospy.Time.now            | self.Time.now+            | self.get_clock().now()    |
 | rospy.logdebug            | self.logdebug+            | self.get_logger().debug   |
 | rospy.loginfo             | self.loginfo+             | self.get_logger().info    |
