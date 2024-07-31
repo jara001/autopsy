@@ -232,6 +232,19 @@ class Node(NodeI):
         return super(Node, self).create_service(srv_type = service_class, srv_name = name, callback = handler)
 
 
+    def ServiceProxy(self, name, service_class, persistent=False, headers=None):
+        """Create a handle for invoking a service call.
+
+        Arguments (only those that are used):
+        name -- name of the service, str
+        service_class -- class of the ROS service message
+
+        Reference:
+        http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.ServiceProxy-class.html
+        """
+        return super(Node, self).create_client(srv_type = service_class, srv_name = name)
+
+
     def Time(self, secs = 0, nsecs = 0):
         """Create a Time object.
 

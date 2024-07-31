@@ -130,6 +130,20 @@ class Node(object):
         return rospy.Service(name = srv_name, service_class = srv_type, handler = callback)
 
 
+    def create_client(self, srv_type, srv_name, **kwargs):
+        """Create a service client.
+
+        Arguments:
+        srv_type -- class of the used ROS service message
+        srv_name -- name of the service
+        **kwargs -- other, currently unsupported arguments
+
+        Reference:
+        https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_client
+        """
+        return rospy.ServiceProxy(name = srv_name, service_class = srv_type)
+
+
     def get_clock(self):
         """Get clock used by the node."""
         return Clock()
