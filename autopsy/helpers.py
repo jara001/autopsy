@@ -2,8 +2,65 @@
 # helpers.py
 """Set of helper classes and decorators for ROS nodes.
 
-Currently implemented:
- - Publisher and Subscriber (ROS1) decorators for class Nodes.
+1) Decorators
+Helpers module contains following decorators:
+- Publisher
+- Subscriber
+- Timer
+
+Note: Currently, in order to properly use all decorators, the node has to be
+based on autopsy.node.Node.
+
+Note: All decorators should handle the same arguments as Node functions of the
+same name.
+
+
+To set default values for the decorators, use `functools.partial`, e.g.,
+
+    from functools import partial
+    Publisher = partial(Publisher, queue_size = 1)
+
+
+## Publisher ##
+
+A ROS1 style Publisher decorator. When decorated function is called, returned
+value is published using the associated publisher.
+
+Decorated function may return:
+- message of given type; that is then published to ROS,
+- None; which skips publishing,
+- or list of messages | None; which is spread among the associated publishers.
+
+Note: Publisher decorator can be specified multiple times in a row for a single
+function. Order of their definition matches their execution sequence.
+
+
+## Subscriber ##
+
+A ROS1 style Subscriber decorator. A subscription object is created for the
+decorated function, which is then used as a callback for every received
+message.
+
+
+## Timer ##
+
+A ROS1 style Timer decorator. Decorated function is periodically executed with
+given period.
+
+Note: When combining Timer with other decorators, Timer() has to be the first,
+otherwise it is not properly executed.
+
+
+
+2) Functions
+Helpers module contains following functions:
+- Execute
+
+
+## Execute ##
+
+Execute(node) function automatically handles initialization of ROS, creation of
+`node` object and its execution.
 """
 ######################
 # Imports & Globals
