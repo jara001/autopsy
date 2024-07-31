@@ -102,8 +102,11 @@ class Publisher(object):
 
             msg = func(cls, *args, **kwargs)
 
+            if msg is None:
+                return
+
             # Only one message is returned; send it to every publisher.
-            if not isinstance(msg, list):
+            elif not isinstance(msg, list):
                 for pub in pubs:
                     pub.publish(msg)
 
