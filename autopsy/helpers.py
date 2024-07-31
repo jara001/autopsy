@@ -50,6 +50,9 @@ given period.
 Note: When combining Timer with other decorators, Timer() has to be the first,
 otherwise it is not properly executed.
 
+Note: Decorated functions should handle `*args` and `**kwargs` because of the
+way how the timer callback is executed.
+
 
 
 2) Functions
