@@ -161,6 +161,15 @@ class Node(NodeI):
                     _kwargs["callback"] = getattr(self, name)
                     self.Timer(*_args, **_kwargs)
 
+            # Check whether the function should be a service.
+            if getattr(method, "_is_service", False):
+                # Create real service servers and use the function as callback.
+                for _args, _kwargs in zip(
+                    method._service_args, method._service_kwargs
+                ):
+                    _kwargs["handler"] = getattr(self, name)
+                    self.Service(*_args, **_kwargs)
+
 
     def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
         """Create a publisher. (ROS1 version)

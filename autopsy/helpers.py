@@ -7,6 +7,7 @@ Helpers module contains following decorators:
 - Publisher
 - Subscriber
 - Timer
+- Service
 
 Note: Currently, in order to properly use all decorators, the node has to be
 based on autopsy.node.Node.
@@ -52,6 +53,14 @@ otherwise it is not properly executed.
 
 Note: Decorated functions should handle `*args` and `**kwargs` because of the
 way how the timer callback is executed.
+
+
+## Service ##
+
+A ROS1 style Service decorator. A service server object is created for the
+decorated function.
+
+Warning: This is still under heavy development.
 
 
 
@@ -189,6 +198,30 @@ class Timer(object):
         else:
             func._timer_args.append(self.__args)
             func._timer_kwargs.append(self.__kwargs)
+
+        # Return the augmented function.
+        return func
+
+
+class Service(object):
+    """Service decorator."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the decorator."""
+        super(Service, self).__init__()
+        self.__args = args
+        self.__kwargs = kwargs
+
+
+    def __call__(self, func, *args, **kwargs):
+        """Execute the Service."""
+        if not getattr(func, "_is_service", False):
+            func._is_service = True
+            func._service_args = [self.__args]
+            func._service_kwargs = [self.__kwargs]
+        else:
+            func._service_args.append(self.__args)
+            func._service_kwargs.append(self.__kwargs)
 
         # Return the augmented function.
         return func
