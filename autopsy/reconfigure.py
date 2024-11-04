@@ -786,20 +786,34 @@ class ParameterReconfigure(object):
     def _redescribe2(self):
         """Creates a description of the parameters for ROS2."""
 
-        self._description = [
-            (
+        self._description = []
+
+        for _name, _param in self._parameters.items():
+            _optional = {}
+
+            if _param.type == float:
+                _optional["floating_point_range"] = [
+                    FloatingPointRange(
+                        from_value = _param.min, to_value = _param.max
+                    )
+                ]
+
+            if _param.type == int:
+                _optional["integer_range"] = [
+                    IntegerRange(
+                        from_value = _param.min, to_value = _param.max
+                    )
+                ]
+
+            self._description.append((
                 _name,
                 _param.default,
                 ParameterDescriptor(
                     type = PTypes[_param.type],
                     description = _param.description,
-                    **{
-                        **({"floating_point_range": [FloatingPointRange(from_value = _param.min, to_value = _param.max)]} if _param.type == float else {}),
-                        **({"integer_range": [IntegerRange(from_value = _param.min, to_value = _param.max)]} if _param.type == int else {})
-                    }
+                    **_optional
                 )
-            ) for _name, _param in self._parameters.items()
-        ]
+            ))
 
 
     def _reupdate(self):

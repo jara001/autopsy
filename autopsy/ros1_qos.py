@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # ros1_qos.py
 """ROS2 QoSProfile compatible implementation for ROS1.
+
+TODO: Adapt to match the ROS2 code exactly.
 """
 ######################
 # Imports & Globals
@@ -23,6 +25,22 @@ class DurabilityPolicy(Enum):
     SYSTEM_DEFAULT = 0
     TRANSIENT_LOCAL = 1
     VOLATILE = 2
+
+
+######################
+# QoSHistoryPolicy
+######################
+
+class HistoryPolicy(Enum):
+    """Enum to mimic ROS2 `HistoryPolicy`.
+
+    Reference:
+    https://docs.ros2.org/foxy/api/rclpy/api/qos.html#rclpy.qos.HistoryPolicy
+    """
+
+    SYSTEM_DEFAULT = 0
+    KEEP_LAST = 1
+    KEEP_ALL = 2
 
 
 ######################
@@ -56,6 +74,7 @@ class QoSProfile(object):
     def __init__(self, depth,
             durability = DurabilityPolicy.SYSTEM_DEFAULT,
             reliability = ReliabilityPolicy.SYSTEM_DEFAULT,
+            history = HistoryPolicy.SYSTEM_DEFAULT,
         **kwargs):
         """Initialize the class.
 

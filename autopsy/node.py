@@ -21,6 +21,7 @@ Relations:
 | rospy.Rate                | self.Rate+                | self.create_rate          |
 | rospy.Timer               | self.Timer+               | self.create_timer         |
 | rospy.Service             | self.Service+             | self.create_service       |
+| rospy.ServiceProxy        | self.ServiceProxy+        | self.create_client        |
 | rospy.Time.now            | self.Time.now+            | self.get_clock().now()    |
 | rospy.logdebug            | self.logdebug+            | self.get_logger().debug   |
 | rospy.loginfo             | self.loginfo+             | self.get_logger().info    |
@@ -125,6 +126,50 @@ class Node(NodeI):
             # Python 3
             self.Time.__func__.now = super(Node, self).get_clock().now
 
+        # Register decorators
+        for name, method in self.__class__.__dict__.items():
+            # Check whether the function should be a publisher.
+            if getattr(method, "_is_publisher", False):
+                # Create real publishers and store them inside this class.
+                setattr(self, "_pub_%s" % name, [])
+                for _args, _kwargs in zip(
+                    method._publisher_args, method._publisher_kwargs
+                ):
+                    # Insert the publisher to the front; as otherwise their
+                    # order is reversed. This is caused by the execution
+                    # sequence of decorators.
+                    getattr(self, "_pub_%s" % name).insert(
+                        0,
+                        self.Publisher(*_args, **_kwargs)
+                    )
+
+            # Check whether the function should be a subscriber.
+            if getattr(method, "_is_callback", False):
+                # Create real subscribers and use the function as callback.
+                for _args, _kwargs in zip(
+                    method._subscriber_args, method._subscriber_kwargs
+                ):
+                    _kwargs["callback"] = getattr(self, name)
+                    self.Subscriber(*_args, **_kwargs)
+
+            # Check whether the function should be a timer.
+            if getattr(method, "_is_timer", False):
+                # Create real timers and use the function as callback.
+                for _args, _kwargs in zip(
+                    method._timer_args, method._timer_kwargs
+                ):
+                    _kwargs["callback"] = getattr(self, name)
+                    self.Timer(*_args, **_kwargs)
+
+            # Check whether the function should be a service.
+            if getattr(method, "_is_service", False):
+                # Create real service servers and use the function as callback.
+                for _args, _kwargs in zip(
+                    method._service_args, method._service_kwargs
+                ):
+                    _kwargs["handler"] = getattr(self, name)
+                    self.Service(*_args, **_kwargs)
+
 
     def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
         """Create a publisher. (ROS1 version)
@@ -195,6 +240,19 @@ class Node(NodeI):
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html
         """
         return super(Node, self).create_service(srv_type = service_class, srv_name = name, callback = handler)
+
+
+    def ServiceProxy(self, name, service_class, persistent=False, headers=None):
+        """Create a handle for invoking a service call.
+
+        Arguments (only those that are used):
+        name -- name of the service, str
+        service_class -- class of the ROS service message
+
+        Reference:
+        http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.ServiceProxy-class.html
+        """
+        return super(Node, self).create_client(srv_type = service_class, srv_name = name)
 
 
     def Time(self, secs = 0, nsecs = 0):

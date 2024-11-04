@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+## 0.11.0 - 2024-11-04
+### Added
+- `duration`:
+    - Wrapper for importing Duration class in the same way as `rclpy`.
+- `helpers`:
+    - `Publisher`, `Subscriber` and `Timer` decorators for ROS1 nodes.
+    - `Execute` function to create node instance and spin it.
+- `qos`:
+    - Enum for `HistoryPolicy`.
+- `uninode`:
+    - Support for ServiceProxy/create_client.
+    - Very limited support for `declare_parameter()` and `get_parameter()`.
+
+### Deprecated
+- `uninode`:
+    - `Core.duration` is deprecated. Use `autopsy.duration` instead.
+
+### Fixed
+- `reconfigure`:
+    - Remove `**{}` to make code Py2 compatible.
+
 ## 0.10.7 - 2024-04-22
 ### Added
 - `uninode`:
