@@ -6,6 +6,8 @@
 # Imports & Globals
 ######################
 
+import warnings
+
 try:
     import rospy
 except:
@@ -15,6 +17,7 @@ from .ros1_qos import *
 from .ros1_time import Time
 from .ros1_clock import Clock
 from .ros1_logger import Logger
+from .ros1_parameter import Parameter
 
 
 ######################
@@ -144,6 +147,23 @@ class Node(object):
         return rospy.ServiceProxy(name = srv_name, service_class = srv_type)
 
 
+    def declare_parameter(self, name, value = None, **kwargs):
+        """Declare and initialize a ROS parameter.
+
+        Arguments:
+        name -- name of the parameter, including the namespace
+        value -- value of the parameter
+        **kwargs -- other, currently unsupported arguments
+
+        Reference:
+        https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.declare_parameter
+        """
+        if not rospy.has_param(name):
+            rospy.set_param(name, value)
+
+        return Parameter(name, value = value)
+
+
     def get_clock(self):
         """Get clock used by the node."""
         return Clock()
@@ -152,3 +172,22 @@ class Node(object):
     def get_logger(self):
         """Mimic a logger object."""
         return Logger()
+
+
+    def get_parameter(self, name):
+        """Get a ROS parameter by its name.
+
+        Arguments:
+        name -- name of the parameter, including the namespace
+
+        Reference:
+        https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.declare_parameter
+        """
+        warnings.warn(
+            "get_parameter(): autopsy does not fully support ROS2 "
+            "parameters, for true compatibility use `autopsy.reconfigure` "
+            "instead",
+            RuntimeWarning
+        )
+
+        return Parameter(name, value = rospy.get_param(name))

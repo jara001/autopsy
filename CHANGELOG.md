@@ -11,9 +11,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
     - `Publisher`, `Subscriber` and `Timer` decorators for ROS1 nodes.
     - `Execute` function to create node instance and spin it.
 - `qos`:
-  - Enum for `HistoryPolicy`.
+    - Enum for `HistoryPolicy`.
 - `uninode`:
     - Support for ServiceProxy/create_client.
+    - Very limited support for `declare_parameter()` and `get_parameter()`.
 
 ### Deprecated
 - `uninode`:
