@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `helpers`:
     - `Publisher`, `Subscriber` and `Timer` decorators for ROS1 nodes.
     - `Execute` function to create node instance and spin it.
+- `qos`:
+  - Enum for `HistoryPolicy`.
 - `uninode`:
     - Support for ServiceProxy/create_client.
 
