@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - `uninode`:
     - Support for ServiceProxy/create_client.
 
+### Deprecated
+- `uninode`:
+    - `Core.duration` is deprecated. Use `autopsy.duration` instead.
+
 ### Fixed
 - `reconfigure`:
     - Remove `**{}` to make code Py2 compatible.

@@ -90,6 +90,7 @@ def ros2_only(f):
 class Core(object):
     """Universal core class that supports both ROS 1 and ROS 2."""
 
+    # Deprecated: Use `autopsy.duration` instead.
     duration = duration
 
     @ros2_only
