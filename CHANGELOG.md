@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
 ### Added
+- `duration`:
+    - Wrapper for importing Duration class in the same way as `rclpy`.
 - `helpers`:
     - `Publisher`, `Subscriber` and `Timer` decorators for ROS1 nodes.
     - `Execute` function to create node instance and spin it.
