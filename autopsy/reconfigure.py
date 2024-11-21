@@ -13,23 +13,25 @@ This module contains multiple classes:
     - ParameterServer,
   - ParameterEnum.
 
-However, from the user side, only the last two, ParameterServer and ParameterEnum are used.
+However, from the user side, only the last two, ParameterServer and
+ParameterEnum are used.
 
-_Parameter_ is an object that represents a parameter in the application, and it serves
-as a base for other types. Mandatory attributes are: name, default (value) and type.
-Its derivatives are documented separately.
+_Parameter_ is an object that represents a parameter in the application,
+and it serves as a base for other types. Mandatory attributes are: name,
+default (value) and type. Its derivatives are documented separately.
 
-_ParameterReconfigure_ is an object that you register your parameters into. Calling
-reconfigure() creates all necessary stuff that is required in order to support dynamic
-reconfiguration (and rqt_reconfigure).
+_ParameterReconfigure_ is an object that you register your parameters into.
+Calling reconfigure() creates all necessary stuff that is required
+in order to support dynamic reconfiguration (and rqt_reconfigure).
 
-_ParameterServer_ is a derivative of ParameterReconfigure that is used in the userspace
-only. In comparison to the previous ParameterHandler, it is using properties for accessing
-the parameters which reduces the number of changes that is required to perform on the code.
+_ParameterServer_ is a derivative of ParameterReconfigure that is used in
+the userspace only. In comparison to the previous ParameterHandler, it is using
+properties for accessing the parameters which reduces the number of changes
+that is required to perform on the code.
 
-_ParameterEnum_ is an extension of standard Enum class. Instead of taking just one value,
-ParameterEnum supports also second value containing the description of each parameter.
-However, Enum can be still used.
+_ParameterEnum_ is an extension of standard Enum class. Instead of taking
+just one value, ParameterEnum supports also second value containing
+the description of each parameter. However, Enum can be still used.
 
 
 Example:
@@ -63,7 +65,7 @@ class extendedEnum(ParameterEnum):
     Value1 = 9.5, "First value"
     Value2 = 9.68, "Second value"
 
-inlineEnum = ParameterEnum("NOT_USED", {"Value1": (8, "with help"), "Value2": 9})
+inlineEnum = ParameterEnum("NOT_USED", {"Val1": (8, "with help"), "Val2": 9})
 
 P.enumeratedParam = standardEnum
 P.enumeratedParam2 = extendedEnum
@@ -116,7 +118,17 @@ from enum import Enum, EnumMeta
 
 # Message types
 if autopsy.core.ROS_VERSION == 1:
-    from dynamic_reconfigure.msg import ConfigDescription, Config, Group, ParamDescription, BoolParameter, IntParameter, StrParameter, DoubleParameter, GroupState
+    from dynamic_reconfigure.msg import (
+        ConfigDescription,
+        Config,
+        Group,
+        ParamDescription,
+        BoolParameter,
+        IntParameter,
+        StrParameter,
+        DoubleParameter,
+        GroupState,
+    )
     from dynamic_reconfigure.srv import Reconfigure
 
     # ROS1 compiles the messages into two, in contrast to ROS2.
@@ -124,8 +136,15 @@ if autopsy.core.ROS_VERSION == 1:
 
 if autopsy.core.ROS_VERSION == 2:
     # ROS2 uses different messages for rqt_reconfigure.
-    from rcl_interfaces.srv import SetParameters
-    from rcl_interfaces.msg import ParameterType, ParameterDescriptor, SetParametersResult, Parameter, FloatingPointRange, IntegerRange
+    # from rcl_interfaces.srv import SetParameters
+    from rcl_interfaces.msg import (
+        ParameterType,
+        ParameterDescriptor,
+        SetParametersResult,
+        # Parameter,
+        FloatingPointRange,
+        IntegerRange,
+    )
 
     # Translation of types to ParameterType
     PTypes = {
@@ -137,7 +156,7 @@ if autopsy.core.ROS_VERSION == 2:
 
 
 # https://stackoverflow.com/questions/2440692/formatting-floats-without-trailing-zeros
-formatNumber = lambda x: ("%f" % x).rstrip("0").rstrip(".")
+formatNumber = lambda x: ("%f" % x).rstrip("0").rstrip(".")  # noqa: E731
 
 
 ######################
@@ -152,6 +171,7 @@ class ParameterEnum(Enum):
     """
 
     def __new__(cls, value, doc = ""):
+        """Create a ParameterEnum object."""
         self = object.__new__(cls)
         self._value_ = value
         self.__doc__ = doc
@@ -165,7 +185,19 @@ class ParameterEnum(Enum):
 class Parameter(object):
     """Object that represents a parameter."""
 
-    def __init__(self, name, default, type, level = 0, description = "", value = None, enum = None, callback = None, *args, **kwargs):
+    def __init__(
+        self,
+        name,
+        default,
+        type,
+        level = 0,
+        description = "",
+        value = None,
+        enum = None,
+        callback = None,
+        *args,
+        **kwargs
+    ):
         """Initialize a parameter object.
 
         Arguments:
@@ -176,17 +208,24 @@ class Parameter(object):
         description -- short comment for this parameter, str
         value -- current value of the parameter, optional, (same as default)
         enum -- enumerate object for interpreting the values, optional
-        callback -- function to be called upon receiving dynamic reconfiguration, optional, Callable
+        callback -- function to be called upon receiving dynamic
+                    reconfiguration, optional, Callable
         *overflown args
         **overflown kwargs
         """
-
         # Sanity check
-        if not isinstance(default, type) or ( value is not None and not isinstance(value, type) ):
-            raise TypeError("Type '%s' does not match given values '%s / %s'." % (type.__name__, default, value))
+        if (
+            not isinstance(default, type)
+            or (value is not None and not isinstance(value, type))
+        ):
+            raise TypeError(
+                "Type '%s' does not match given values '%s / %s'."
+                % (type.__name__, default, value)
+            )
 
         # TODO: Do properties dynamically using property().
-        # But beware of https://stackoverflow.com/questions/1325673/how-to-add-property-to-a-class-dynamically
+        # But beware of
+        # https://stackoverflow.com/questions/1325673/how-to-add-property-to-a-class-dynamically
 
         # Mandatory arguments
         self.name = name
@@ -194,7 +233,7 @@ class Parameter(object):
         self.type = type
 
         # Optional arguments
-        #self.type = type if type is not None else default.__class__
+        # self.type = type if type is not None else default.__class__
         self.typestr = self.type.__name__ if self.type != float else "double"
         self.level = level
         self.description = description
@@ -219,7 +258,7 @@ class Parameter(object):
 
     @property
     def default(self):
-        """Default value of the parameter."""
+        """Default value of the parameter."""  # noqa: D401
         return self.__default
 
     @default.setter
@@ -259,7 +298,7 @@ class Parameter(object):
 
     @property
     def description(self):
-        """Description of the parameter shown in GUI."""
+        """Description of the parameter shown in GUI."""  # noqa: D401
         return self.__description
 
     @description.setter
@@ -269,7 +308,7 @@ class Parameter(object):
 
     @property
     def value(self):
-        """Current value of the parameter."""
+        """Current value of the parameter."""  # noqa: D401
         return self.__value
 
     @value.setter
@@ -278,29 +317,42 @@ class Parameter(object):
             if isinstance(new_value, Enum):
                 new_value = new_value.value
 
-            if new_value not in [ v.value for v in self.enum.__members__.values() ]:
-                raise ValueError("Value '%s' is not a valid enumerated element." % (new_value))
+            if new_value not in [
+                v.value for v in self.enum.__members__.values()
+            ]:
+                raise ValueError(
+                    "Value '%s' is not a valid enumerated element."
+                    % (new_value)
+                )
 
         if not isinstance(new_value, self.type):
-            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+            raise ValueError(
+                "Value '%s' is not of a type '%s'."
+                % (new_value, self.type.__name__)
+            )
 
         self.__value = new_value
 
 
     @property
     def enum(self):
-        """Current enum object of the parameter."""
+        """Current enum object of the parameter."""  # noqa: D401
         return self.__enum
 
 
     @property
     def repr_enum(self):
-        """Current enum in the dynamic reconfigure friendly format."""
-
+        """Current enum in the dynamic reconfigure friendly format."""  # noqa:
         if self.enum is None:
             return ""
 
-        _d = {"enum": [], "enum_description": self.description if self.enum.__doc__ is None else self.enum.__doc__}
+        _d = {
+            "enum": [],
+            "enum_description": (
+                self.description if self.enum.__doc__ is None
+                else self.enum.__doc__
+            )
+        }
 
         for _e in list(self.enum):
             _d["enum"].append(
@@ -331,7 +383,7 @@ class Parameter(object):
 
     @property
     def namespace(self):
-        """Namespace that this parameter belongs to. (Required for ROS2.)"""
+        """Namespace that this parameter belongs to (Required for ROS2)."""
         return self.__namespace
 
     @namespace.setter
@@ -340,14 +392,14 @@ class Parameter(object):
 
 
     def __str__(self):
-        """Formats the parameter into a string.
+        """Format the parameter into a string.
 
         Returns:
         str
         """
         return "%s: %s" % (self.name, self.value)
 
-
+    #
     # Overloading operators
     # Note: It would be nice to get around this by returning a value
     # when calling P.parameter instead of the object. But currently, I have no
@@ -355,7 +407,7 @@ class Parameter(object):
     # It should be possible with overloading __get__() similarly to property().
     # Other note: Currently, 'is', 'not' and 'bool()' are not supported.
     @staticmethod
-    def __operator__(first, second = None, operator = None):
+    def __operator__(first, second = None, operator = None):  # noqa: D105
         if second is None:
             return operator(
                 first.value if isinstance(first, Parameter) else first
@@ -376,36 +428,54 @@ class Parameter(object):
                 second.value if isinstance(second, Parameter) else second
             )
 
-    __operators = ["abs", "add", "and", "div", "floordiv", "lshift", "mod", "mul", "or", "pow", "rshift", "sub", "truediv", "xor"]
+    __operators = ["abs", "add", "and", "div", "floordiv", "lshift", "mod", "mul", "or", "pow", "rshift", "sub", "truediv", "xor"]  # noqa: E501
 
     __comparators = ["lt", "le", "eq", "ne", "ge", "gt"]
 
     __uoperators = ["abs", "index", "invert", "neg", "pos"]
 
-    __functions = ["int", "float", "complex", "round", "trunc", "floor", "ceil"]
+    __functions = ["int", "float", "complex", "round", "trunc", "floor", "ceil"]  # noqa: E501
 
     for op in __operators:
-        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
-        vars()["__r%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(second, first, operator.__dict__[op])
+        vars()["__%s__" % op] = (
+            lambda first, second, op = "__%s__" % op: Parameter.__operator__(
+                first, second, operator.__dict__[op]
+            )
+        )
+        vars()["__r%s__" % op] = (
+            lambda first, second, op = "__%s__" % op: Parameter.__operator__(
+                second, first, operator.__dict__[op]
+            )
+        )
 
         # Could be also done using:
-        #def _(first, second, op = _operator):
-        #    return Parameter.__operator__(first, second, operator.__dict__[op])
+        # def _(first, second, op = _operator):
+        #   return Parameter.__operator__(first, second, operator.__dict__[op])
         #
-        #def __(first, second, op = _operator):
-        #    return Parameter.__operator__(second, first, operator.__dict__[op])
+        # def __(first, second, op = _operator):
+        #   return Parameter.__operator__(second, first, operator.__dict__[op])
         #
-        #vars()[_operator] = _
-        #vars()["__r%s__" % op] = __
+        # vars()[_operator] = _
+        # vars()["__r%s__" % op] = __
 
     for op in __comparators:
-        vars()["__%s__" % op] = lambda first, second, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+        vars()["__%s__" % op] = (
+            lambda first, second, op = "__%s__" % op: Parameter.__operator__(
+                first, second, operator.__dict__[op]
+            )
+        )
 
     for op in __uoperators:
-        vars()["__%s__" % op] = lambda first, second = None, op = "__%s__" % op: Parameter.__operator__(first, second, operator.__dict__[op])
+        vars()["__%s__" % op] = (
+            lambda first, second = None, op = "__%s__" % op: Parameter.__operator__(  # noqa: E501
+                first, second, operator.__dict__[op]
+            )
+        )
 
     for op in __functions:
-        vars()["__%s__" % op] = lambda first, op = "__%s__" % op: getattr(first.value, op)()
+        vars()["__%s__" % op] = (
+            lambda first, op = "__%s__" % op: getattr(first.value, op)()
+        )
 
 
 class ConstrainedP(Parameter):
@@ -415,18 +485,27 @@ class ConstrainedP(Parameter):
     _link = None
 
 
-    def __init__(self, name, default, type, min = -2147483647, max = 2147483647, **kwargs):
+    def __init__(
+        self,
+        name,
+        default,
+        type,
+        min = -2147483647,
+        max = 2147483647,
+        **kwargs
+    ):
         """Initialize a constrained parameter object.
 
         Arguments:
         name -- name of the parameter, str
         default -- default value of the parameter, bool/int/str/float
         type -- type of the parameter, type
-        min -- minimum value of the parameter (included), optional, (same as default)
-        max -- maximum value of the parameter (included), optional, (same as default)
+        min -- minimum value of the parameter (included),
+               optional, (same as default)
+        max -- maximum value of the parameter (included),
+               optional, (same as default)
         **overflown kwargs
         """
-
         if min > max:
             raise ValueError("Lower bound is larger than upper bound.")
 
@@ -446,7 +525,10 @@ class ConstrainedP(Parameter):
     @min.setter
     def min(self, new_value):
         if not isinstance(new_value, self.type):
-            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+            raise ValueError(
+                "Value '%s' is not of a type '%s'."
+                % (new_value, self.type.__name__)
+            )
 
         self.__min = new_value
 
@@ -459,25 +541,43 @@ class ConstrainedP(Parameter):
     @max.setter
     def max(self, new_value):
         if not isinstance(new_value, self.type):
-            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+            raise ValueError(
+                "Value '%s' is not of a type '%s'."
+                % (new_value, self.type.__name__)
+            )
 
         self.__max = new_value
 
 
     @Parameter.value.setter
-    def value(self, new_value):
+    def value(self, new_value):  # noqa: D102
         if hasattr(self, "enum") and self.enum is not None:
             if isinstance(new_value, Enum):
                 new_value = new_value.value
 
-            if new_value not in [ v.value for v in self.enum.__members__.values() ]:
-                raise ValueError("Value '%s' is not a valid enumerated element." % (new_value))
+            if new_value not in [
+                v.value for v in self.enum.__members__.values()
+            ]:
+                raise ValueError(
+                    "Value '%s' is not a valid enumerated element."
+                    % (new_value)
+                )
 
         if not isinstance(new_value, self.type):
-            raise ValueError("Value '%s' is not of a type '%s'." % (new_value, self.type.__name__))
+            raise ValueError(
+                "Value '%s' is not of a type '%s'."
+                % (new_value, self.type.__name__)
+            )
 
         if not self.min <= new_value <= self.max:
-            raise ValueError("Value '%s' is not in %s <= value <= %s range." % (formatNumber(new_value), formatNumber(self.min), formatNumber(self.max)))
+            raise ValueError(
+                "Value '%s' is not in %s <= value <= %s range."
+                % (
+                    formatNumber(new_value),
+                    formatNumber(self.min),
+                    formatNumber(self.max)
+                )
+            )
 
         if self._link is not None:
             new_value = self._link(new_value)
@@ -486,7 +586,7 @@ class ConstrainedP(Parameter):
 
 
     def __str__(self):
-        """Formats the parameter into a string.
+        """Format the parameter into a string.
 
         Returns:
         str
@@ -497,39 +597,39 @@ class ConstrainedP(Parameter):
 class IntP(ConstrainedP):
     """Parameter of a type integer."""
 
-    def __init__(self, name, default, *args, **kwargs):
+    def __init__(self, name, default, *args, **kwargs):  # noqa: D107
         super(IntP, self).__init__(name, default, int, *args, **kwargs)
 
 
     def __nonzero__(self):
-        """Used for evaluating conditions (Py2)."""
+        """Used for evaluating conditions (Py2)."""  # noqa: D401
         return self.value != 0
 
     def __bool__(self):
-        """Used for evaluating conditions (Py3)."""
+        """Used for evaluating conditions (Py3)."""  # noqa: D401
         return self.value != 0
 
 
 class DoubleP(ConstrainedP):
     """Parameter of a type float/double."""
 
-    def __init__(self, name, default, *args, **kwargs):
+    def __init__(self, name, default, *args, **kwargs):  # noqa: D107
         super(DoubleP, self).__init__(name, default, float, *args, **kwargs)
 
 
     def __nonzero__(self):
-        """Used for evaluating conditions (Py2)."""
+        """Used for evaluating conditions (Py2)."""  # noqa: D401
         return self.value != 0.0
 
     def __bool__(self):
-        """Used for evaluating conditions (Py3)."""
+        """Used for evaluating conditions (Py3)."""  # noqa: D401
         return self.value != 0.0
 
 
 class BoolP(Parameter):
     """Parameter of a type bool."""
 
-    def __init__(self, name, default, *args, **kwargs):
+    def __init__(self, name, default, *args, **kwargs):  # noqa: D107
         self.min = None
         self.max = None
 
@@ -537,18 +637,18 @@ class BoolP(Parameter):
 
 
     def __nonzero__(self):
-        """Used for evaluating conditions (Py2)."""
+        """Used for evaluating conditions (Py2)."""  # noqa: D401
         return self.value
 
     def __bool__(self):
-        """Used for evaluating conditions (Py3)."""
+        """Used for evaluating conditions (Py3)."""  # noqa: D401
         return self.value
 
 
 class StrP(Parameter):
     """Parameter of a type string."""
 
-    def __init__(self, name, default, *args, **kwargs):
+    def __init__(self, name, default, *args, **kwargs):  # noqa: D107
         self.min = None
         self.max = None
 
@@ -580,7 +680,6 @@ class ParameterDict(dict):
 
     def __setitem__(self, name, value):
         """Overload the original setitem to keep order."""
-
         super(ParameterDict, self).__setitem__(name, value)
 
         if name not in self._order:
@@ -589,7 +688,6 @@ class ParameterDict(dict):
 
     def __delitem__(self, name):
         """Overload item deletion to remove it from the order."""
-
         super(ParameterDict, self).__delitem__(name)
 
         self._order.remove(name)
@@ -605,7 +703,7 @@ class ParameterDict(dict):
 
     def values(self):
         """Return values in a given order."""
-        return [ value for _, value in self.items() ]
+        return [value for _, value in self.items()]
 
 
 ######################
@@ -643,7 +741,7 @@ class ParameterReconfigure(object):
 
 
     def reconfigure(self, namespace = None, node = None):
-
+        """Create the reconfigure service and expose all parameters."""
         if node is None:
             self._node = autopsy.core.rospy
         else:
@@ -654,7 +752,9 @@ class ParameterReconfigure(object):
             for p in self._parameters.values():
                 p._namespace = namespace
 
-            self._node.add_on_set_parameters_callback(self._reconfigure2Callback)
+            self._node.add_on_set_parameters_callback(
+                self._reconfigure2Callback
+            )
 
             self._redescribe2()
 
@@ -674,11 +774,18 @@ class ParameterReconfigure(object):
 
         self._namespace = namespace
 
-        self._pub_description = self._node.Publisher("%s/parameter_descriptions" % namespace,
-                                                ConfigDescription, queue_size = 1, latch = True)
-        self._pub_update = self._node.Publisher("%s/parameter_updates" % namespace,
-                                                Config, queue_size = 1, latch = True)
-        self._service = self._node.Service("%s/set_parameters" % namespace, Reconfigure, self._reconfigureCallback)
+        self._pub_description = self._node.Publisher(
+            "%s/parameter_descriptions" % namespace,
+            ConfigDescription, queue_size = 1, latch = True
+        )
+        self._pub_update = self._node.Publisher(
+            "%s/parameter_updates" % namespace,
+            Config, queue_size = 1, latch = True
+        )
+        self._service = self._node.Service(
+            "%s/set_parameters" % namespace,
+            Reconfigure, self._reconfigureCallback
+        )
 
         # Expose parameters to the ROS Parameter Server (ROS1 only)
         if hasattr(self._node, "set_param"):
@@ -694,8 +801,7 @@ class ParameterReconfigure(object):
 
 
     def _describePub(self):
-        """Sends a message with parameters' description."""
-
+        """Send a message with parameters' description."""
         if self._pub_description is None:
             return
 
@@ -703,8 +809,7 @@ class ParameterReconfigure(object):
 
 
     def _updatePub(self):
-        """Sends a message with parameters' update."""
-
+        """Send a message with parameters' update."""
         if self._pub_update is None:
             return
 
@@ -712,37 +817,59 @@ class ParameterReconfigure(object):
 
 
     def _get(self, ptype, field, condition):
-        """Returns names of the parameters of a given type along with selected values.
+        """Return names of the parameters of a given type along with selected values.
 
         Arguments:
         ptype -- parameter type of the parameters, str
         field -- field to be returned, lambda function
-        condition -- when the result is True, parameter is added, lambda function
+        condition -- when the result is True, parameter is added,
+                     lambda function
 
         Returns:
         plist -- list of parameters, 2-list(str,Any) list
         """
-        return [ [param.name, field(param)] for param in self._parameters.values() if condition(param) ]
+        return [
+            [param.name, field(param)]
+            for param in self._parameters.values() if condition(param)
+        ]
 
 
-    def _get_bools(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("bool", field, lambda x: condition(x) and x.type == bool)
+    def _get_bools(
+        self, field = lambda x: x.value, condition = lambda _: True
+    ):
+        return self._get(
+            "bool", field, lambda x: condition(x) and x.type == bool
+        )
 
 
-    def _get_ints(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("int", field, lambda x: condition(x) and x.type == int)
+    def _get_ints(
+        self, field = lambda x: x.value, condition = lambda _: True
+    ):
+        return self._get(
+            "int", field, lambda x: condition(x) and x.type == int
+        )
 
 
-    def _get_strs(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("str", field, lambda x: condition(x) and x.type == str)
+    def _get_strs(
+        self, field = lambda x: x.value, condition = lambda _: True
+    ):
+        return self._get(
+            "str", field, lambda x: condition(x) and x.type == str
+        )
 
 
-    def _get_doubles(self, field = lambda x: x.value, condition = lambda _: True):
-        return self._get("double", field, lambda x: condition(x) and x.type == float)
+    def _get_doubles(
+        self, field = lambda x: x.value, condition = lambda _: True
+    ):
+        return self._get(
+            "double", field, lambda x: condition(x) and x.type == float
+        )
 
 
-    def _get_config(self, field = lambda x: x.value, condition = lambda _: True):
-        """Builds a Config message from all parameters.
+    def _get_config(
+        self, field = lambda x: x.value, condition = lambda _: True
+    ):
+        """Build a Config message from all parameters.
 
         Arguments:
         field -- field to be used in the Config, lambda function
@@ -751,16 +878,27 @@ class ParameterReconfigure(object):
         Config -- message for the reconfiguration, Config
         """
         return Config(
-            bools = [ BoolParameter(*param) for param in self._get_bools(field, condition) ],
-            ints = [ IntParameter(*param) for param in self._get_ints(field, condition) ],
-            strs = [ StrParameter(*param) for param in self._get_strs(field, condition) ],
-            doubles = [ DoubleParameter(*param) for param in self._get_doubles(field, condition) ],
+            bools = [
+                BoolParameter(*param)
+                for param in self._get_bools(field, condition)
+            ],
+            ints = [
+                IntParameter(*param)
+                for param in self._get_ints(field, condition)
+            ],
+            strs = [
+                StrParameter(*param)
+                for param in self._get_strs(field, condition)
+            ],
+            doubles = [
+                DoubleParameter(*param)
+                for param in self._get_doubles(field, condition)
+            ],
         )
 
 
     def _redescribe(self):
-        """Creates a description of the parameters."""
-
+        """Create a description of the parameters."""
         self._description = ConfigDescription(
             groups = [
                 Group(
@@ -772,7 +910,9 @@ class ParameterReconfigure(object):
                             type = _param.typestr,
                             level = _param.level,
                             description = _param.description,
-                            edit_method = "" if _param.enum is None else _param.repr_enum
+                            edit_method = (
+                                "" if _param.enum is None else _param.repr_enum
+                            )
                         ) for _name, _param in self._parameters.items()
                     ],
                 ),
@@ -784,8 +924,7 @@ class ParameterReconfigure(object):
 
 
     def _redescribe2(self):
-        """Creates a description of the parameters for ROS2."""
-
+        """Create a description of the parameters for ROS2."""
         self._description = []
 
         for _name, _param in self._parameters.items():
@@ -817,11 +956,11 @@ class ParameterReconfigure(object):
 
 
     def _reupdate(self):
-        """Creates an update description of the parameters."""
-
+        """Create an update description of the parameters."""
         # Note: Condition was removed because of the linked variables, as when
         # the value should be moved to its default state, nothing would happen.
-        _config = self._get_config()#condition = lambda x: x.value != x.default)
+        _config = self._get_config()
+        # condition = lambda x: x.value != x.default)
         _config.groups = [
             GroupState(
                 name = "Default",
@@ -841,16 +980,20 @@ class ParameterReconfigure(object):
         parameters -- parameters to be set, list of Parameter
 
         Returns:
-        result -- feedback whether the update was properly done, SetParametersResult
+        result -- feedback whether the update was properly done,
+                  SetParametersResult
         """
-
         for param in parameters:
             # Filter out namespace (ROS2)
             _param_name = param.name.split('.')[-1]
 
-            # For some reason, callback is invoked on every namespace in the node.
-            # Skip if it is not present in the ParameterList, or not in this namespace.
-            if _param_name not in self._parameters or self._parameters[_param_name]._namespace != self._namespace:
+            # For some reason, callback is invoked on every namespace
+            # in the node. Skip if it is not present in the ParameterList,
+            # or not in this namespace.
+            if (
+                _param_name not in self._parameters
+                or self._parameters[_param_name]._namespace != self._namespace
+            ):
                 continue
 
             _old_value = self._parameters[_param_name].value
@@ -859,13 +1002,19 @@ class ParameterReconfigure(object):
             try:
                 # a) Try to use the callback
                 if self._parameters[_param_name].callback is not None:
-                    # In ROS2 this could raise an Exception. If so, it is caught right away.
-                    _new_value = self._parameters[_param_name].callback(param.value)
+                    # In ROS2 this could raise an Exception. If so,
+                    # it is caught right away.
+                    _new_value = self._parameters[_param_name].callback(
+                        param.value
+                    )
 
                     # b) Check whether the value changed.
                     if _new_value != param.value:
                         self._parameters[_param_name].callback(_old_value)
-                        raise ValueError("Value of parameter '%s' changed after callback." % (_param_name))
+                        raise ValueError(
+                            "Value of parameter '%s' changed after callback."
+                            % (_param_name)
+                        )
 
                 # c) Try to store the value
                 self._parameters[_param_name].value = param.value
@@ -873,7 +1022,11 @@ class ParameterReconfigure(object):
                 # d) Check whether the value changed.
                 if self._parameters[_param_name].value != param.value:
                     self._parameters[_param_name].value = _old_value
-                    raise ValueError("Value of parameter '%s' changed to different value. Maybe the variable is linked?" % (_param_name))
+                    raise ValueError(
+                        "Value of parameter '%s' changed to different value. "
+                        "Maybe the variable is linked?"
+                        % (_param_name)
+                    )
 
             except Exception as e:
                 return SetParametersResult(
@@ -893,15 +1046,19 @@ class ParameterReconfigure(object):
         Returns:
         rdata -- current values of the parameters, ReconfigureResponse
         """
-
         _updated = []
 
         # Update parameters
-        for param in data.config.bools + data.config.ints + data.config.strs + data.config.doubles:
+        for param in (
+            data.config.bools + data.config.ints
+            + data.config.strs + data.config.doubles
+        ):
             if self._parameters[param.name].callback is None:
                 self._parameters[param.name].value = param.value
             else:
-                self._parameters[param.name].value = self._parameters[param.name].callback(param.value)
+                self._parameters[param.name].value = (
+                    self._parameters[param.name].callback(param.value)
+                )
 
             # Expose the update to the ROS Parameter Server (ROS1 only)
             if self._expose_parameters:
@@ -920,17 +1077,18 @@ class ParameterReconfigure(object):
                 self._get_config(condition = lambda x: x in _updated)
             )
         else:
-            response.config = self._get_config(condition = lambda x: x in _updated)
+            response.config = self._get_config(
+                condition = lambda x: x in _updated
+            )
             return response
 
 
     def __str__(self):
-        """Formats the handler into a string.
+        """Format the handler into a string.
 
         Returns:
         str
         """
-
         return "\n".join(
             [
                 "\t%s" % str(param) for param in self._parameters.values()
@@ -943,27 +1101,29 @@ class ParameterReconfigure(object):
 ######################
 
 class ParameterServer(ParameterReconfigure):
-    """Object that stores parameters, updates their values, and provides an interface for dynamic reconfiguration."""
+    """ParameterServer object.
 
+    Object that stores parameters, updates their values,
+    and provides an interface for dynamic reconfiguration.
+    """
 
     def __init__(self):
         """Initialize the object by calling the super init."""
         super(ParameterServer, self).__init__()
 
 
-    def __hasattr__(self, name):
+    def __hasattr__(self, name):  # noqa: D105
         pass
 
 
-    def __getattr__(self, name):
+    def __getattr__(self, name):  # noqa: D105
         super(ParameterServer, self).__setattr__(name, None)
         return name
 
 
     def __getattribute__(self, name):
-        """Function overload to obtain parameters as properties."""
-
-        #if name == "_parameters":
+        """Function overload to obtain parameters as properties."""  # noqa:
+        # if name == "_parameters":
         if name[0] == "_":
             return super(ParameterServer, self).__getattribute__(name)
 
@@ -974,8 +1134,7 @@ class ParameterServer(ParameterReconfigure):
 
 
     def __setattr__(self, name, value):
-        """Function overload to set parameters as properties."""
-
+        """Function overload to set parameters as properties."""  # noqa:
         if name[0] == "_":
             super(ParameterServer, self).__setattr__(name, value)
 
@@ -987,7 +1146,7 @@ class ParameterServer(ParameterReconfigure):
                 self._parameters[name].value = value
 
         else:
-            if isinstance(value, dict) and "default" in value :
+            if isinstance(value, dict) and "default" in value:
                 kwargs = value
                 value = value.get("default")
                 del kwargs["default"]
@@ -997,7 +1156,7 @@ class ParameterServer(ParameterReconfigure):
                 kwargs = dict(
                     zip(
                         ["level", "description", "default", "min", "max"],
-                        value[2:] # Omit name and type
+                        value[2:]  # Omit name and type
                     )
                 )
                 value = _type(kwargs.get("default"))
@@ -1018,7 +1177,10 @@ class ParameterServer(ParameterReconfigure):
             elif isinstance(value, str):
                 self._parameters[name] = StrP(name, value, **kwargs)
             else:
-                raise TypeError("Unable to create a parameter of type '%s'." % type(value))
+                raise TypeError(
+                    "Unable to create a parameter of type '%s'."
+                    % type(value)
+                )
 
 
     def __contains__(self, name):
@@ -1055,29 +1217,34 @@ class ParameterServer(ParameterReconfigure):
 
 
     def link(self, param1, param2):
-        """Links two constrained parameters together so one cannot be more then the other.
+        """Link two constrained parameters together.
+
+        Therefore, one cannot be more then the other.
 
         Arguments:
         name1 -- name of the first ConstrainedP parameter, str
         name2 -- name of the second ConstrainedP parameter, str
         """
-
         for param in (param1, param2):
             if not isinstance(param, ConstrainedP):
-                raise TypeError("Parameter '%s' is of a type '%s'." % (param.name, type(param)))
+                raise TypeError(
+                    "Parameter '%s' is of a type '%s'."
+                    % (param.name, type(param))
+                )
 
         param1._link = lambda x: min(x, param2.value)
         param2._link = lambda x: max(x, param1.value)
 
 
     def update(self, parameters, only_existing = False):
-        """Updates the parameters according to the passed dictionary.
+        """Update the parameters according to the passed dictionary.
 
         Arguments:
-        parameters -- new values of the parameters, dict(str, any) or list(tuple(str, any))
-        only_existing -- when True only update values, do not add new parameters, bool, default False
+        parameters -- new values of the parameters,
+                      dict(str, any) or list(tuple(str, any))
+        only_existing -- when True only update values,
+                         do not add new parameters, bool, default False
         """
-
         if isinstance(parameters, dict):
             for param, value in parameters.items():
                 if not only_existing or param in self:
@@ -1087,4 +1254,7 @@ class ParameterServer(ParameterReconfigure):
                 if not only_existing or param in self:
                     self.__setattr__(param, value)
         else:
-            raise NotImplementedError("ParameterServer.update() is not supported for type '%s'." % type(parameters))
+            raise NotImplementedError(
+                "ParameterServer.update() is not supported for type '%s'."
+                % type(parameters)
+            )
