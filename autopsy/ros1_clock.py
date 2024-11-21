@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # ros1_clock.py
 """ROS2 Clock compatible implementation for ROS1.
+
+Only selected functions are implemented.
 """
 ######################
 # Imports & Globals
@@ -8,7 +10,7 @@
 
 try:
     import rospy
-except:
+except ImportError:
     pass
 
 from .ros1_time import Time
@@ -26,4 +28,5 @@ class Clock(object):
     """
 
     def now(self):
+        """Obtain current time in Time class."""
         return Time(seconds = rospy.get_time())

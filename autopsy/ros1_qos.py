@@ -2,6 +2,8 @@
 # ros1_qos.py
 """ROS2 QoSProfile compatible implementation for ROS1.
 
+Only selected parts are implemented.
+
 TODO: Adapt to match the ROS2 code exactly.
 """
 ######################
@@ -71,16 +73,20 @@ class QoSProfile(object):
     https://docs.ros.org/en/rolling/Concepts/About-Quality-of-Service-Settings.html
     """
 
-    def __init__(self, depth,
-            durability = DurabilityPolicy.SYSTEM_DEFAULT,
-            reliability = ReliabilityPolicy.SYSTEM_DEFAULT,
-            history = HistoryPolicy.SYSTEM_DEFAULT,
-        **kwargs):
+    def __init__(
+        self,
+        depth,
+        durability = DurabilityPolicy.SYSTEM_DEFAULT,
+        reliability = ReliabilityPolicy.SYSTEM_DEFAULT,
+        history = HistoryPolicy.SYSTEM_DEFAULT,
+        **kwargs
+    ):
         """Initialize the class.
 
         Arguments:
         depth -- number of messages to hold (queue size), int
-        durability -- how to treat messages for new subscribers, DurabilityPolicy
+        durability -- how to treat messages for new subscribers,
+                      DurabilityPolicy
         **kwargs -- other, currently unsupported arguments
 
         Reference:

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # ros1_parameter.py
 """ROS2 Parameter compatible implementation for ROS1.
+
+Only selected functions are implemented.
 """
 ######################
 # Imports & Globals
