@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Source: https://github.com/ros2/rclpy/blob/a82e20641822d62c792455d6049709dc7b301ac4/rclpy/rclpy/wait_for_message.py
+# Source:
+# https://github.com/ros2/rclpy/blob/a82e20641822d62c792455d6049709dc7b301ac4/rclpy/rclpy/wait_for_message.py
+"""ROS2 implementation of 'wait_for_message'."""
 
 from rclpy.impl.implementation_singleton import rclpy_implementation as _rclpy
 from rclpy.node import Node
@@ -32,8 +34,10 @@ def wait_for_message(
     :param node: node to initialize the subscription on
     :param topic: topic name to wait for message
     :param time_to_wait: seconds to wait before returning
-    :returns: (True, msg) if a message was successfully received, (False, None) if message
-        could not be obtained or shutdown was triggered asynchronously on the context.
+    :returns:
+        (True, msg) if a message was successfully received,
+        (False, None) if message could not be obtained
+                      or shutdown was triggered asynchronously on the context.
     """
     context = node.context
     wait_set = _rclpy.WaitSet(1, 1, 0, 0, 0, 0, context.handle)
