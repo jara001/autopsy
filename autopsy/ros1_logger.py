@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # ros1_logger.py
 """ROS2 Logger compatible implementation for ROS1.
+
+Only selected functions are implemented.
 """
 ######################
 # Imports & Globals
@@ -8,7 +10,7 @@
 
 try:
     import rospy
-except:
+except ImportError:
     pass
 
 

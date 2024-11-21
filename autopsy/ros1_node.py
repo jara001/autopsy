@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # ros1_node.py
 """ROS2 Node compatible implementation for ROS1.
+
+Only selected functions are implemented.
 """
 ######################
 # Imports & Globals
@@ -10,10 +12,14 @@ import warnings
 
 try:
     import rospy
-except:
+except ImportError:
     pass
 
-from .ros1_qos import *
+from .ros1_qos import (
+    QoSProfile,
+    DurabilityPolicy,
+    ReliabilityPolicy,
+)
 from .ros1_time import Time
 from .ros1_clock import Clock
 from .ros1_logger import Logger
@@ -69,23 +75,58 @@ class Node(object):
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_publisher
         """
-        return rospy.Publisher(name = topic, data_class = msg_type, tcp_nodelay = isinstance(qos_profile, QoSProfile) and qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT, latch = isinstance(qos_profile, QoSProfile) and qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL, queue_size = qos_profile.depth if isinstance(qos_profile, QoSProfile) else qos_profile)
+        return rospy.Publisher(
+            name = topic,
+            data_class = msg_type,
+            tcp_nodelay = (
+                isinstance(qos_profile, QoSProfile)
+                and qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT
+            ),
+            latch = (
+                isinstance(qos_profile, QoSProfile)
+                and qos_profile.durability == DurabilityPolicy.TRANSIENT_LOCAL
+            ),
+            queue_size = (
+                qos_profile.depth if isinstance(qos_profile, QoSProfile)
+                else qos_profile
+            )
+        )
 
 
-    def create_subscription(self, msg_type, topic, callback, qos_profile, **kwargs):
+    def create_subscription(
+        self,
+        msg_type,
+        topic,
+        callback,
+        qos_profile,
+        **kwargs
+    ):
         """Create a subscriber.
 
         Arguments:
         msg_type -- class of the used ROS message
         topic -- name of the topic to subscribe to, str
-        callback -- function to be called upon receiving a message, Callable[msg_type]
+        callback -- function to be called upon receiving a message,
+                    Callable[msg_type]
         qos_profile -- number of messages to be kept in a queue, int
         **kwargs -- other, currently unsupported arguments
 
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_subscription
         """
-        return rospy.Subscriber(name = topic, data_class = msg_type, callback = callback, queue_size = qos_profile.depth if isinstance(qos_profile, QoSProfile) else qos_profile, tcp_nodelay = isinstance(qos_profile, QoSProfile) and qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT)
+        return rospy.Subscriber(
+            name = topic,
+            data_class = msg_type,
+            callback = callback,
+            queue_size = (
+                qos_profile.depth if isinstance(qos_profile, QoSProfile)
+                else qos_profile
+            ),
+            tcp_nodelay = (
+                isinstance(qos_profile, QoSProfile)
+                and qos_profile.reliability == ReliabilityPolicy.BEST_EFFORT
+            )
+        )
 
 
     def create_rate(self, frequency, **kwargs):
@@ -113,9 +154,13 @@ class Node(object):
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_timer
 
         Note:
-        Callback in ROS1 takes an argument 'rospy.TimerEvent', however not in ROS2.
+        Callback in ROS1 takes an argument 'rospy.TimerEvent',
+        however not in ROS2.
         """
-        return rospy.Timer(period = rospy.Duration(timer_period_sec), callback = callback)
+        return rospy.Timer(
+            period = rospy.Duration(timer_period_sec),
+            callback = callback
+        )
 
 
     def create_service(self, srv_type, srv_name, callback, **kwargs):
@@ -124,13 +169,18 @@ class Node(object):
         Arguments:
         srv_type -- class of the used ROS service message
         srv_name -- name of the service
-        callback -- function to be called upon receiving a service request, Callable[srv_type/ServiceRequest]
+        callback -- function to be called upon receiving a service request,
+                    Callable[srv_type/ServiceRequest]
         **kwargs -- other, currently unsupported arguments
 
         Reference:
         https://docs.ros2.org/latest/api/rclpy/api/node.html#rclpy.node.Node.create_service
         """
-        return rospy.Service(name = srv_name, service_class = srv_type, handler = callback)
+        return rospy.Service(
+            name = srv_name,
+            service_class = srv_type,
+            handler = callback
+        )
 
 
     def create_client(self, srv_type, srv_name, **kwargs):

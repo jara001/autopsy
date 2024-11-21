@@ -10,19 +10,22 @@ try:
     from _version import Version
 
     # Utility function to read the README file.
-    # Used for the long_description.  It's nice, because now 1) we have a top level
-    # README file and 2) it's easier to type in the README file than to put a raw
-    # string in below ...
-    #def read(fname):
+    # Used for the long_description. It's nice, because now
+    # 1) we have a top level README file
+    # 2) it's easier to type in the README file than to put a raw
+    #    string in below ...
+    # def read(fname):
     #    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-    VERSION = str(Version(os.popen("git describe --tags --dirty --always").read()[1:-1]))
+    VERSION = str(
+        Version(os.popen("git describe --tags --dirty --always").read()[1:-1])
+    )
 
     if os.path.exists("VERSION"):
         STORED = open("VERSION", "r").read()
 
         if ".dev" in VERSION:
-            _len = len(VERSION[:VERSION.index(".dev")+4])
+            _len = len(VERSION[:VERSION.index(".dev") + 4])
         else:
             _len = len(VERSION)
 
@@ -44,12 +47,16 @@ try:
     # Also store the version to be seen from the code
     with open("./autopsy/version.py", "w") as file:
         file.write("__version__ = '%s'" % VERSION)
-except:
+except Exception:
     # When not building the wheel use the package version
-    VERSION=str(os.popen("grep '<version>' package.xml | grep -o '[0-9\.]*'").read()[:-1])
+    VERSION = str(
+        os.popen(
+            "grep '<version>' package.xml | grep -o '[0-9\.]*'"  # noqa: W605
+        ).read()[:-1]
+    )
 
     with open("./autopsy/version.py", "w") as file:
-        file.write("__version__ = '%s'" % VERSION)
+        file.write("__version__ = '%s'  # noqa: D100,W292" % VERSION)
 
 
 setup(
@@ -60,9 +67,9 @@ setup(
     description = ("A set of Python utils for F1Tenth project."),
     license = "GPLv3",
     keywords = "f1tenth autonomous car ros robot",
-    #url = "http://packages.python.org/an_example_pypi_project",
+    # url = "http://packages.python.org/an_example_pypi_project",
     packages=find_packages(),
-    #long_description=read('README'),
+    # long_description=read('README'),
     data_files=[
         ("share/ament_index/resource_index/packages",
              ["resource/autopsy"]),

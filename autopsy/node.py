@@ -82,7 +82,7 @@ class MyNode(Node):
     def topic_callback(self, msg):
         print ("Received:", msg.data)
 ```
-"""
+"""  # noqa: E501
 ######################
 # Imports & Globals
 ######################
@@ -94,12 +94,20 @@ if ROS_VERSION == 1:
     from rospy import wait_for_message as rospy_wait_for_message
     from .ros1_node import Node as NodeI
     from .ros1_time import Time as TimeI
-    from .ros1_qos import *
+    from .ros1_qos import (
+        QoSProfile,
+        ReliabilityPolicy,
+        DurabilityPolicy,
+    )
 
 elif ROS_VERSION == 2:
     from rclpy.node import Node as NodeI
     from rclpy.time import Time as TimeI
-    from rclpy.qos import *
+    from rclpy.qos import (
+        QoSProfile,
+        ReliabilityPolicy,
+        DurabilityPolicy,
+    )
     from .ports import rclpy_wait_for_message
 
 
@@ -122,7 +130,7 @@ class Node(NodeI):
         try:
             # Python 2
             self.Time.now = super(Node, self).get_clock().now
-        except:
+        except Exception:
             # Python 3
             self.Time.__func__.now = super(Node, self).get_clock().now
 
@@ -171,8 +179,17 @@ class Node(NodeI):
                     self.Service(*_args, **_kwargs)
 
 
-    def Publisher(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None):
-        """Create a publisher. (ROS1 version)
+    def Publisher(
+        self,
+        name,
+        data_class,
+        subscriber_listener = None,
+        tcp_nodelay = False,
+        latch = False,
+        headers = None,
+        queue_size = None
+    ):
+        """Create a publisher (ROS1 version).
 
         Arguments (only those that are used):
         name -- name of the topic to publish to, str
@@ -184,27 +201,62 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Publisher-class.html
         """
-        return super(Node, self).create_publisher(msg_type = data_class, topic = name, qos_profile = QoSProfile(depth = queue_size, durability = DurabilityPolicy.TRANSIENT_LOCAL if latch else DurabilityPolicy.VOLATILE, reliability = ReliabilityPolicy.BEST_EFFORT if tcp_nodelay else ReliabilityPolicy.RELIABLE))
+        return super(Node, self).create_publisher(
+            msg_type = data_class,
+            topic = name,
+            qos_profile = QoSProfile(
+                depth = queue_size,
+                durability = (
+                    DurabilityPolicy.TRANSIENT_LOCAL if latch
+                    else DurabilityPolicy.VOLATILE
+                ),
+                reliability = (
+                    ReliabilityPolicy.BEST_EFFORT if tcp_nodelay
+                    else ReliabilityPolicy.RELIABLE
+                )
+            )
+        )
 
 
-    def Subscriber(self, name, data_class, callback=None, callback_args=None, queue_size=10, buff_size=65536, tcp_nodelay=False):
-        """Create a subscriber. (ROS1 version)
+    def Subscriber(
+        self,
+        name,
+        data_class,
+        callback = None,
+        callback_args = None,
+        queue_size = 10,
+        buff_size = 65536,
+        tcp_nodelay = False
+    ):
+        """Create a subscriber (ROS1 version).
 
         Arguments (only those that are used):
         name -- name of the topic to subscribe to, str
         data_class -- class of the ROS message
-        callback -- function to be called upon receiving a message, Callable[msg_type]
+        callback -- function to be called upon receiving a message,
+                    Callable[msg_type]
         queue_size -- number of messages to be kept in queue, int
         tcp_nodelay -- disable Nagle algorithm on TCPROS to lower latency, bool
 
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.topics.Subscriber-class.html
         """
-        return super(Node, self).create_subscription(msg_type = data_class, topic = name, callback = callback, qos_profile = QoSProfile(depth = queue_size, reliability = ReliabilityPolicy.BEST_EFFORT if tcp_nodelay else ReliabilityPolicy.RELIABLE))
+        return super(Node, self).create_subscription(
+            msg_type = data_class,
+            topic = name,
+            callback = callback,
+            qos_profile = QoSProfile(
+                depth = queue_size,
+                reliability = (
+                    ReliabilityPolicy.BEST_EFFORT if tcp_nodelay
+                    else ReliabilityPolicy.RELIABLE
+                )
+            )
+        )
 
 
-    def Rate(self, hz, reset=False):
-        """Create a rate object for sleeping in a loop. (ROS1 version)
+    def Rate(self, hz, reset = False):
+        """Create a rate object for sleeping in a loop (ROS1 version).
 
         Arguments (only those that are used):
         hz -- frequency to determine sleeping, int
@@ -215,7 +267,7 @@ class Node(NodeI):
         return super(Node, self).create_rate(frequency = hz)
 
 
-    def Timer(self, period, callback, oneshot=False, reset=False):
+    def Timer(self, period, callback, oneshot = False, reset = False):
         """Create a timer object to execute function periodically.
 
         Arguments (only those that are used):
@@ -225,24 +277,42 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.timer.Timer-class.html
         """
-        return super(Node, self).create_timer(timer_period_sec = period, callback = callback)
+        return super(Node, self).create_timer(
+            timer_period_sec = period, callback = callback
+        )
 
 
-    def Service(self, name, service_class, handler, buff_size=65536, error_handler=None):
+    def Service(
+        self,
+        name,
+        service_class,
+        handler,
+        buff_size = 65536,
+        error_handler = None
+    ):
         """Create a service object.
 
         Arguments (only those that are used):
         name -- name of the service, str
         service_class -- class of the ROS service message
-        handler -- function to be called upon receiving service request, Callable[service_class/ServiceRequest]
+        handler -- function to be called upon receiving service request,
+                   Callable[service_class/ServiceRequest]
 
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.Service-class.html
         """
-        return super(Node, self).create_service(srv_type = service_class, srv_name = name, callback = handler)
+        return super(Node, self).create_service(
+            srv_type = service_class, srv_name = name, callback = handler
+        )
 
 
-    def ServiceProxy(self, name, service_class, persistent=False, headers=None):
+    def ServiceProxy(
+        self,
+        name,
+        service_class,
+        persistent = False,
+        headers = None
+    ):
         """Create a handle for invoking a service call.
 
         Arguments (only those that are used):
@@ -252,7 +322,9 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy.impl.tcpros_service.ServiceProxy-class.html
         """
-        return super(Node, self).create_client(srv_type = service_class, srv_name = name)
+        return super(Node, self).create_client(
+            srv_type = service_class, srv_name = name
+        )
 
 
     def Time(self, secs = 0, nsecs = 0):
@@ -272,7 +344,7 @@ class Node(NodeI):
             2) If nsecs is larger than 1e9, reduce it under 1e9 while increasing secs.
             3) If nsecs is lower than 0, reduce secs to make it positive.
         In ROS2, class does not care. Time is stored in nanoseconds.
-        """
+        """  # noqa: E501
         return TimeI(seconds = secs, nanoseconds = nsecs)
 
 
@@ -285,7 +357,9 @@ class Node(NodeI):
         Reference:
         http://docs.ros.org/en/kinetic/api/rospy/html/rospy-module.html
         """
-        return float(super(Node, self).get_clock().now().nanoseconds) / (10 ** 9)
+        return (
+            float(super(Node, self).get_clock().now().nanoseconds) / (10 ** 9)
+        )
 
 
     def logdebug(self, msg, *args, **kwargs):
@@ -300,7 +374,7 @@ class Node(NodeI):
 
     def logwarn(self, msg, *args, **kwargs):
         """Log a message with severity 'WARN'."""
-        return super(Node, self).get_logger().warning(str(msg) % args, **kwargs)
+        return super(Node, self).get_logger().warning(str(msg) % args, **kwargs)  # noqa: E501
 
 
     def logerr(self, msg, *args, **kwargs):
@@ -317,7 +391,7 @@ class Node(NodeI):
 
 
     def wait_for_message(self, topic, topic_type, timeout = None):
-        """Receive one message from a topic. (ROS1 version)
+        """Receive one message from a topic (ROS1 version).
 
         Arguments:
         topic -- name of the topic, str
@@ -334,7 +408,9 @@ class Node(NodeI):
         https://docs.ros.org/en/kinetic/api/rospy/html/rospy.client-module.html#wait_for_message
         """
         if ROS_VERSION == 1:
-            return rospy_wait_for_message(topic = topic, topic_type = topic_type, timeout = timeout)
+            return rospy_wait_for_message(
+                topic = topic, topic_type = topic_type, timeout = timeout
+            )
         else:
             return rclpy_wait_for_message.wait_for_message(
                 msg_type = topic_type,
@@ -350,7 +426,6 @@ class Node(NodeI):
         Arguments:
         name -- name of the attribute / method
         """
-
         if ROS_VERSION == 1:
             return getattr(rospy, name)
         else:

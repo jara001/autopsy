@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # ros1_time.py
 """ROS2 Time compatible implementation for ROS1.
+
+Only selected functions are implemented.
 """
 ######################
 # Imports & Globals
@@ -35,12 +37,15 @@ class Time(object):
         Reference:
         https://github.com/ros2/rclpy/blob/humble/rclpy/rclpy/time.py
         """
-        self.total_nanoseconds = int(seconds * CONVERSION_CONSTANT) + int(nanoseconds)
+        self.total_nanoseconds = (
+            int(seconds * CONVERSION_CONSTANT) + int(nanoseconds)
+        )
         self.clock_type = None
 
 
     @property
     def nanoseconds(self):
+        """Return the stored time in nanoseconds."""
         return self.total_nanoseconds
 
 
@@ -50,7 +55,10 @@ class Time(object):
         Returns:
         (secs, nsecs) -- 2-tuple of ints
         """
-        return (self.total_nanoseconds // CONVERSION_CONSTANT, self.total_nanoseconds % CONVERSION_CONSTANT)
+        return (
+            self.total_nanoseconds // CONVERSION_CONSTANT,
+            self.total_nanoseconds % CONVERSION_CONSTANT
+        )
 
 
     def to_msg(self):
@@ -74,57 +82,71 @@ class Time(object):
         """Obtain Time from a message."""
         return cls(seconds = msg.secs, nanoseconds = msg.nsecs)
 
-    # TODO: Add this to ROS2 and just reimplement ROS1 Time as it is much better.
-    ## Operators ##
+    # TODO: Add this to ROS2 and just reimplement ROS1 Time as
+    #       it is much better.
+    # # Operators # #
     # Source: https://github.com/ros2/rclpy/blob/humble/rclpy/rclpy/time.py
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return 'Time(nanoseconds=%s, clock_type=%s)' % (
             self.nanoseconds, self.clock_type)
 
-    def __add__(self, other):
+    def __add__(self, other):  # noqa: D105
         return NotImplemented
 
-    def __sub__(self, other):
+    def __sub__(self, other):  # noqa: D105
         return NotImplemented
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # noqa: D105
         if isinstance(other, Time):
             if self.clock_type != other.clock_type:
-                raise TypeError("Can't compare times with different clock types")
+                raise TypeError(
+                    "Can't compare times with different clock types"
+                )
             return self.nanoseconds == other.nanoseconds
-        # Raise instead of returning NotImplemented to prevent comparison with invalid types,
-        # e.g. ints.
-        # Otherwise `Time(nanoseconds=5) == 5` will return False instead of raising, and this
-        # could lead to hard-to-find bugs.
-        raise TypeError("Can't compare time with object of type: ", type(other))
 
-    def __ne__(self, other):
+        # Raise instead of returning NotImplemented to prevent comparison
+        # with invalid types, e.g. ints.
+        # Otherwise `Time(nanoseconds=5) == 5` will return False
+        # instead of raising, and this could lead to hard-to-find bugs.
+        raise TypeError(
+            "Can't compare time with object of type: ", type(other)
+        )
+
+    def __ne__(self, other):  # noqa: D105
         return not self.__eq__(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other):  # noqa: D105
         if isinstance(other, Time):
             if self.clock_type != other.clock_type:
-                raise TypeError("Can't compare times with different clock types")
+                raise TypeError(
+                    "Can't compare times with different clock types"
+                )
             return self.nanoseconds < other.nanoseconds
         return NotImplemented
 
-    def __le__(self, other):
+    def __le__(self, other):  # noqa: D105
         if isinstance(other, Time):
             if self.clock_type != other.clock_type:
-                raise TypeError("Can't compare times with different clock types")
+                raise TypeError(
+                    "Can't compare times with different clock types"
+                )
             return self.nanoseconds <= other.nanoseconds
         return NotImplemented
 
-    def __gt__(self, other):
+    def __gt__(self, other):  # noqa: D105
         if isinstance(other, Time):
             if self.clock_type != other.clock_type:
-                raise TypeError("Can't compare times with different clock types")
+                raise TypeError(
+                    "Can't compare times with different clock types"
+                )
             return self.nanoseconds > other.nanoseconds
         return NotImplemented
 
-    def __ge__(self, other):
+    def __ge__(self, other):  # noqa: D105
         if isinstance(other, Time):
             if self.clock_type != other.clock_type:
-                raise TypeError("Can't compare times with different clock types")
+                raise TypeError(
+                    "Can't compare times with different clock types"
+                )
             return self.nanoseconds >= other.nanoseconds
         return NotImplemented

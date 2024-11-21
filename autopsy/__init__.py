@@ -4,6 +4,8 @@
 
 # Version of the package
 try:
-    from .version import __version__
-except:
+    from .version import __version__  # noqa: F401
+except ImportError:
+    # In some situations the version file is not created. However, it is
+    # not required for running the package, so we just skip it.
     pass

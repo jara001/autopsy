@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 - Flake8 configuration file.
 
+### Changed
+- Updated all files to be more compliant with the selected flake8 configuration.
+
 ## 0.11.0 - 2024-11-04
 ### Added
 - `duration`:

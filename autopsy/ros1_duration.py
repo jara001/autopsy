@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # duration.py
 """ROS2 Duration compatible implementation for ROS1.
+
+Only selected functions are implemented.
 """
 ######################
 # Imports & Globals
@@ -44,6 +46,7 @@ class Duration(object):
 
     @property
     def nanoseconds(self):
+        """Return the stored duration in nanoseconds."""
         return self.total_nanoseconds
 
 
@@ -65,47 +68,53 @@ class Duration(object):
 
 
     def get_c_duration(self):
+        """Obtain the handle to the C variable used for storing the duration.
+
+        Note: This is not relevant in ROS 1.
+        """
         return NotImplemented
 
-
-    ## Operators ##
+    #
+    # # Operators # #
     # Source: https://github.com/ros2/rclpy/blob/humble/rclpy/rclpy/duration.py
-    def __repr__(self):
+    def __repr__(self):  # noqa: D105
         return 'Duration(nanoseconds=%d)' % self.nanoseconds
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105
         if self == Infinite:
             return 'Infinite'
         return '%d nanoseconds' % self.nanoseconds
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # noqa: D105
         if isinstance(other, Duration):
             return self.nanoseconds == other.nanoseconds
-        # Raise instead of returning NotImplemented to prevent comparison with invalid types,
-        # e.g. ints.
-        # Otherwise `Duration(nanoseconds=5) == 5` will return False instead of raising, and this
-        # could lead to hard-to-find bugs.
-        raise TypeError("Can't compare duration with object of type: ", type(other))
+        # Raise instead of returning NotImplemented to prevent comparison
+        # with invalid types, e.g. ints.
+        # Otherwise `Duration(nanoseconds=5) == 5` will return False
+        # instead of raising, and this could lead to hard-to-find bugs.
+        raise TypeError(
+            "Can't compare duration with object of type: ", type(other)
+        )
 
-    def __ne__(self, other):
+    def __ne__(self, other):  # noqa: D105
         return not self.__eq__(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other):  # noqa: D105
         if isinstance(other, Duration):
             return self.nanoseconds < other.nanoseconds
         return NotImplemented
 
-    def __le__(self, other):
+    def __le__(self, other):  # noqa: D105
         if isinstance(other, Duration):
             return self.nanoseconds <= other.nanoseconds
         return NotImplemented
 
-    def __gt__(self, other):
+    def __gt__(self, other):  # noqa: D105
         if isinstance(other, Duration):
             return self.nanoseconds > other.nanoseconds
         return NotImplemented
 
-    def __ge__(self, other):
+    def __ge__(self, other):  # noqa: D105
         if isinstance(other, Duration):
             return self.nanoseconds >= other.nanoseconds
         return NotImplemented
