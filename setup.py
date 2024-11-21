@@ -56,7 +56,7 @@ except Exception:
     )
 
     with open("./autopsy/version.py", "w") as file:
-        file.write("__version__ = '%s'" % VERSION)
+        file.write("__version__ = '%s'  # noqa: D100,W292" % VERSION)
 
 
 setup(
