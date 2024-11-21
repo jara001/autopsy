@@ -36,7 +36,7 @@ else:
 ######################
 
 def _ros_version_only(ros_version, f):
-    """Decorator for disabling functions that are ROS version dependent.
+    """Disable functions that are ROS version dependent.
 
     Using an optional argument a substitute function may be set.
     This function will be called instead of the original one,
@@ -44,25 +44,25 @@ def _ros_version_only(ros_version, f):
     """
     global ROS_VERSION
 
-    func = None
+    func = None  # noqa: F841
 
     def substitute_or_block(*args, **kwargs):
         # Substitute
-        if ( len(args) == 1 ) and ( callable(args[0]) ):
+        if len(args) == 1 and callable(args[0]):
 
             def substitute(*args, **kwargs):
-                return f ( *args, **kwargs )
+                return f (*args, **kwargs)
 
             return substitute
         # Block
 
     def let_pass(*args, **kwargs):
         # Let pass function that is decorated without params
-        if ( len(args) == 0 ) or ( not ( callable(args[0]) ) ):
+        if len(args) == 0 or not callable(args[0]):
             return f(*args, **kwargs)
         # Ignore parameters of a decorator and run original function instead
         else:
-            #nonlocal func
+            # nonlocal func
             func = args[0]
 
             def pass_it(*args, **kwargs):
@@ -74,12 +74,12 @@ def _ros_version_only(ros_version, f):
 
 
 def ros1_only(f):
-    """Decorator for enabling functions only with ROS1."""
+    """Enable function only when running ROS1."""
     return _ros_version_only(1, f)
 
 
 def ros2_only(f):
-    """Decorator for enabling functions only with ROS2."""
+    """Enable function only when running ROS2."""
     return _ros_version_only(2, f)
 
 
@@ -140,11 +140,15 @@ class Core(object):
         achieved using `rospy.wait_for_message()`, but it is not the
         same. So we translate this into ordinary `rospy.spin()`.
         """
-        rclpy.spin_once(node = node, executor = executor, timeout_sec = timeout_sec)
+        rclpy.spin_once(
+            node = node, executor = executor, timeout_sec = timeout_sec
+        )
 
 
     @ros2_only(spin)
-    def spin_until_future_complete(self, node, future, executor = None, timeout_sec = None):
+    def spin_until_future_complete(
+        self, node, future, executor = None, timeout_sec = None
+    ):
         """Execute work until the future is complete.
 
         Arguments:
@@ -160,7 +164,12 @@ class Core(object):
         ROS1 (rospy) does not support this, so we translate
         it into ordinary `rospy.spin()`.
         """
-        rclpy.spin_until_future_complete(node = node, future = future, executor = executor, timeout_sec = timeout_sec)
+        rclpy.spin_until_future_complete(
+            node = node,
+            future = future,
+            executor = executor,
+            timeout_sec = timeout_sec
+        )
 
 
     @ros2_only
