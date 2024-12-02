@@ -231,7 +231,7 @@ class Service(object):
 # Functions
 ######################
 
-def Execute(node, name = None):
+def Execute(node, name = None, **kwargs):
     """Execute a node class if the script is run directly.
 
     Note: This is provided to avoid repeating code in every script.
@@ -239,15 +239,16 @@ def Execute(node, name = None):
     Arguments:
     node -- node to execute, Node class
     name -- name of the node, str, optional
+    **kwargs -- other optional arguments
     """
     # Initialize the unicore
     Core.init()
 
     # Create a node instance and spin it
     if name is None:
-        n = node()
+        n = node(**kwargs)
     else:
-        n = node(name)
+        n = node(name, **kwargs)
 
     Core.spin(n)
 

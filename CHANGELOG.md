@@ -8,7 +8,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - Flake8 configuration file.
 
 ### Changed
+- `helpers`
+    - `Execute` now supports `**kwargs` to pass any arguments to the node object.
 - Updated all files to be more compliant with the selected flake8 configuration.
+
+### Fixed
+- `uninode`:
+    - Dropped typing in parameters to support Py2.
 
 ## 0.11.0 - 2024-11-04
 ### Added
