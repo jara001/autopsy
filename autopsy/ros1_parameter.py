@@ -59,25 +59,25 @@ class Parameter(object):
         # Do lazy type conversion.
 
         @property
-        def bool_value(self) -> bool:
+        def bool_value(self):
             """Get the parameter value as bool."""
             return bool(self._value)
 
 
         @property
-        def integer_value(self) -> int:
+        def integer_value(self):
             """Get the parameter value as integer."""
             return int(self._value)
 
 
         @property
-        def double_value(self) -> float:
+        def double_value(self):
             """Get the parameter value as float."""
             return float(self._value)
 
 
         @property
-        def string_value(self) -> str:
+        def string_value(self):
             """Get the parameter value as string."""
             return str(self._value)
 
@@ -98,6 +98,6 @@ class Parameter(object):
         self._value = value
 
 
-    def get_parameter_value(self) -> ParameterValue:
+    def get_parameter_value(self):
         """Obtain the parameter value as a separate object."""
         return Parameter.ParameterValue(self._value)
