@@ -239,16 +239,16 @@ def Execute(node, name = None, **kwargs):
     Arguments:
     node -- node to execute, Node class
     name -- name of the node, str, optional
-    **kwargs -- other optional arguments
+    **kwargs -- other optional arguments, passed to Core.init()
     """
     # Initialize the unicore
-    Core.init()
+    Core.init(**kwargs)
 
     # Create a node instance and spin it
     if name is None:
-        n = node(**kwargs)
+        n = node()
     else:
-        n = node(name, **kwargs)
+        n = node(name)
 
     Core.spin(n)
 

@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 - `helpers`
-    - `Execute` now supports `**kwargs` to pass any arguments to the node object.
+    - `Execute` now supports `**kwargs` to pass any arguments to the Core object. Use `functools.partial` for node kwargs.
 - Updated all files to be more compliant with the selected flake8 configuration.
 
 ### Fixed
